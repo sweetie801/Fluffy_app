@@ -36,7 +36,7 @@ jobs:
 
     - name: Build APK
       run: |
-        yes | flet build apk --product "Fluffy"
+        flet build apk --product "Fluffy"
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
