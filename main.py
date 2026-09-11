@@ -1,42 +1,59 @@
 import flet as ft
 from google import genai
+from google.genai import types
 
 def main(page: ft.Page):
     page.title = "Fluffy ✨"
-    page.vertical_alignment = ft.MainAxisAlignment.CENTER
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
+    page.theme_mode = ft.ThemeMode.DARK
+    page.rtl = True
+
+    chat = ft.ListView(expand=True, spacing=10, padding=10)
+    new_message = ft.TextField(
+        hint_text="اكتبي رسالتك هنا...",
+        expand=True,
+        border_radius=20,
+        filled=True,
+        on_submit=lambda e: send_click(None)
+    )
     
-    # ضعي مفتاح API الخاص بك هنا
+    history = []
+    
+    # ضعي مفتاح API الخاص بك هنا أو اجعليه من البيئة
     client = genai.Client(api_key="ضعي_مفتاحك_هنا")
 
-    output_text = ft.Text("مرحباً بكِ! اسأليني بما تحبين ✨", size=16)
-    user_input = ft.TextField(label="اكتبي رسالتك هنا...", width=300)
-
     def send_click(e):
-        if not user_input.value:
+        if not new_message.value:
             return
+        
+        user_text = new_message.value
+        new_message.value = ""
+        
+        chat.controls.append(ft.Text(f"أنتِ: {user_text}", color=ft.colors.PINK_300))
+        page.update()
+
+        history.append({"role": "user", "parts": [user_text]})
+
         try:
             response = client.models.generate_content(
                 model="gemini-2.5-flash",
-                contents=user_input.value,
+                contents=history,
             )
-            output_text.value = response.text
-        except Exception as ex:
-            output_text.value = f"حدث خطأ: {ex}"
+            bot_text = response.text
+            chat.controls.append(ft.Text(f"Fluffy ✨: {bot_text}", color=ft.colors.PURPLE_300))
+            history.append({"role": "model", "parts": [bot_text]})
+        except Exception as err:
+            chat.controls.append(ft.Text(f"خطأ: {str(err)}", color=ft.colors.RED_400))
+            
         page.update()
 
-    send_button = ft.ElevatedButton("إرسال", on_click=send_click)
-
     page.add(
-        ft.Column(
-            [
-                output_text,
-                user_input,
-                send_button,
-            ],
-            alignment=ft.MainAxisAlignment.CENTER,
-            horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-        )
+        ft.Container(
+            content=ft.Text("Fluffy ✨ AI Companion", size=18, weight="bold"),
+            alignment=ft.alignment.center,
+            padding=10
+        ),
+        chat,
+        ft.Row([new_message, ft.IconButton(icon=ft.icons.SEND, on_click=send_click)])
     )
 
 ft.app(target=main)
