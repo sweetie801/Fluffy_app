@@ -1,6 +1,5 @@
 import flet as ft
 from google import genai
-from google.genai import types
 
 def main(page: ft.Page):
     page.title = "Fluffy ✨"
@@ -52,7 +51,10 @@ def main(page: ft.Page):
             alignment=ft.MainAxisAlignment.CENTER
         ),
         chat,
-        ft.Row([new_message, ft.IconButton(icon=ft.icons.SEND, on_click=send_click)])
+        ft.Row([
+            new_message, 
+            ft.ElevatedButton("إرسال", on_click=send_click)
+        ])
     )
 
 ft.app(target=main)
