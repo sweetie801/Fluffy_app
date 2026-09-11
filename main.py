@@ -6,7 +6,7 @@ def main(page: ft.Page):
     page.vertical_alignment = ft.MainAxisAlignment.CENTER
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     
-    # ضع مفتاح API الخاص بك هنا
+    # ضعي مفتاح API الخاص بك هنا
     client = genai.Client(api_key="ضعي_مفتاحك_هنا")
 
     output_text = ft.Text("مرحباً بكِ! اسأليني بما تحبين ✨", size=16)
