@@ -18,7 +18,7 @@ def main(page: ft.Page):
     
     history = []
     
-    # ضعي مفتاح API الخاص بك هنا أو اجعليه من البيئة
+    # ضعي مفتاح API الخاص بك هنا
     client = genai.Client(api_key="ضعي_مفتاحك_هنا")
 
     def send_click(e):
@@ -47,10 +47,9 @@ def main(page: ft.Page):
         page.update()
 
     page.add(
-        ft.Container(
-            content=ft.Text("Fluffy ✨ AI Companion", size=18, weight="bold"),
-            alignment=ft.alignment.center,
-            padding=10
+        ft.Row(
+            [ft.Text("Fluffy ✨ AI Companion", size=18, weight="bold")],
+            alignment=ft.MainAxisAlignment.CENTER
         ),
         chat,
         ft.Row([new_message, ft.IconButton(icon=ft.icons.SEND, on_click=send_click)])
