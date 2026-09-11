@@ -37,6 +37,7 @@ jobs:
       run: |
         yes | flet build apk --product "Fluffy" --project-icon icon.png
 
+
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
