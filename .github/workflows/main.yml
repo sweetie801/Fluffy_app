@@ -19,9 +19,8 @@ jobs:
         python-version: '3.10'
 
     - name: Set up Java
-      uses: actions/setup-java@v4
+      uses: actions/setup-python@v5 # (أو إعداد جافا بالطريقة القياسية)
       with:
-        distribution: 'temurin'
         java-version: '17'
 
     - name: Set up Flutter
@@ -34,72 +33,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet google-genai
 
-    - name: Create Python App File
-      run: |
-        cat << 'EOF' > main.py
-        import flet as ft
-        from google import genai
-        from google.genai import types
-
-        API_KEY = "AQ.Ab8RN6J9pjs9dwaMlBlm0LoItfzd0tP2mV0_ZVp9WlVNJtUltg"
-        SYSTEM_PROMPT = "أنت ذكاء اصطناعي خاص وشامل، موجّه حكيم وناصح ومرشد مخلص في كل الأوقات. عامل المستخدمة بتقدير، قدّم الاستشارات، تذكر التفاصيل، ونادِها دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجي اللطيفة."
-
-        def main(page: ft.Page):
-            page.title = "𝐹𝑙𝑢𝑓𝑓𝑦 ✨"
-            page.theme_mode = ft.ThemeMode.DARK
-            page.rtl = True
-
-            chat = ft.ListView(expand=True, spacing=10, auto_scroll=True)
-            new_message = ft.TextField(hint_text="اكتبي رسالتكِ هنا...", expand=True, border_radius=20)
-            history = []
-
-            def send_click(e):
-                if not new_message.value:
-                    return
-                user_text = new_message.value
-                new_message.value = ""
-                
-                chat.controls.append(ft.Text(f"أنتِ: {user_text}", color=ft.Colors.PINK_300))
-                page.update()
-
-                history.append({"role": "user", "parts": [{"text": user_text}]})
-
-                try:
-                    client = genai.Client(api_key=API_KEY)
-                    response = client.models.generate_content(
-                        model='gemini-2.5-flash',
-                        contents=history,
-                        config=types.GenerateContentConfig(
-                            system_instruction=SYSTEM_PROMPT,
-                            temperature=0.7
-                        )
-                    )
-                    bot_text = response.text
-                    chat.controls.append(ft.Text(f"𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀: {bot_text}", color=ft.Colors.WHITE))
-                    history.append({"role": "model", "parts": [{"text": bot_text}]})
-                except Exception as err:
-                    chat.controls.append(ft.Text(f"خطأ: {str(err)}", color=ft.Colors.RED))
-                
-                page.update()
-
-            page.add(
-                ft.Container(
-                    content=ft.Text("𝐹𝑙𝑢𝑓𝑓𝑦 ✨ AI Companion", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.PINK_400),
-                    alignment=ft.alignment.center,
-                    padding=10
-                ),
-                chat,
-                ft.Row([new_message, ft.IconButton(icon=ft.Icons.SEND, icon_color=ft.Colors.PINK_400, on_click=send_click)])
-            )
-
-        ft.app(target=main)
-        EOF
-
     - name: Build APK using Flet
       run: |
-                yes | flet build apk --product "Fluffy" --project-icon icon.png
-
-
+        yes | flet build apk --product "Fluffy" --project-icon icon.png
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
