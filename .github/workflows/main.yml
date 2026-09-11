@@ -41,6 +41,7 @@ jobs:
 
     - name: Build APK
       run: |
+        yes | flutter doctor --android-licenses
         echo "y" | flet build apk --product "Fluffy"
 
     - name: Upload APK Artifact
