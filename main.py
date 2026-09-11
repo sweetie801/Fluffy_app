@@ -2,7 +2,7 @@ import flet as ft
 from google import genai
 
 def main(page: ft.Page):
-    page.title = "Fluffy ✨"
+    page.title = "Fluffy"
     page.theme_mode = ft.ThemeMode.DARK
     page.rtl = True
 
@@ -27,7 +27,7 @@ def main(page: ft.Page):
         user_text = new_message.value
         new_message.value = ""
         
-        chat.controls.append(ft.Text(f"أنتِ: {user_text}", color=ft.colors.PINK_300))
+        chat.controls.append(ft.Text(f"أنت: {user_text}", color=ft.colors.PINK_300))
         page.update()
 
         history.append({"role": "user", "parts": [user_text]})
@@ -38,7 +38,7 @@ def main(page: ft.Page):
                 contents=history,
             )
             bot_text = response.text
-            chat.controls.append(ft.Text(f"Fluffy ✨: {bot_text}", color=ft.colors.PURPLE_300))
+            chat.controls.append(ft.Text(f"Fluffy: {bot_text}", color=ft.colors.PURPLE_300))
             history.append({"role": "model", "parts": [bot_text]})
         except Exception as err:
             chat.controls.append(ft.Text(f"خطأ: {str(err)}", color=ft.colors.RED_400))
@@ -47,7 +47,7 @@ def main(page: ft.Page):
 
     page.add(
         ft.Row(
-            [ft.Text("Fluffy ✨ AI Companion", size=18, weight="bold")],
+            [ft.Text("Fluffy AI Companion", size=18, weight="bold")],
             alignment=ft.MainAxisAlignment.CENTER
         ),
         chat,
