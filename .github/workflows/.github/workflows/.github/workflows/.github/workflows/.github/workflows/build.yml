@@ -34,9 +34,9 @@ jobs:
         python -m pip install --upgrade pip
         pip install flet google-genai
 
-    - name: Build APK with Icon
+    - name: Build APK
       run: |
-        yes | flet build apk --product "Fluffy" --project-icon icon.png
+        yes | flet build apk --product "Fluffy"
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
