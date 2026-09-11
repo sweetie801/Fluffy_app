@@ -49,7 +49,7 @@ jobs:
         SYSTEM_PROMPT = "أنت ذكاء اصطناعي خاص وشامل، موجّه حكيم وناصح ومرشد مخلص في كل الأوقات. عامل المستخدمة بتقدير، قدّم الاستشارات، تذكر التفاصيل، ونادِها دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجي اللطيفة."
 
         def main(page: ft.Page):
-            page.title = "𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀"
+            page.title = "𝐹𝑙𝑢𝑓𝑓𝑦 ✨"
             page.theme_mode = ft.ThemeMode.DARK
             page.rtl = True
 
@@ -88,7 +88,7 @@ jobs:
 
             page.add(
                 ft.Container(
-                    content=ft.Text("𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 AI Companion", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.PINK_400),
+                    content=ft.Text("𝐹𝑙𝑢𝑓𝑓𝑦 ✨ AI Companion", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.PINK_400),
                     alignment=ft.alignment.center,
                     padding=10
                 ),
@@ -101,7 +101,7 @@ jobs:
 
     - name: Build APK using Flet
       run: |
-        yes | flet build apk
+        yes | flet build apk --project-name "𝐹𝑙𝑢𝑓𝑓𝑦 ✨"
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
