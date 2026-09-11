@@ -27,7 +27,6 @@ def main(page: ft.Page):
         user_text = new_message.value
         new_message.value = ""
         
-        # تم تصحيح ft.colors إلى ft.Colors هنا
         chat.controls.append(ft.Text(f"أنت: {user_text}", color=ft.Colors.PINK_300))
         page.update()
 
@@ -39,7 +38,6 @@ def main(page: ft.Page):
                 contents=history,
             )
             bot_text = response.text
-            # وتم تصحيحها هنا أيضاً
             chat.controls.append(ft.Text(f"Fluffy: {bot_text}", color=ft.Colors.PURPLE_300))
             history.append({"role": "model", "parts": [bot_text]})
         except Exception as err:
@@ -59,4 +57,4 @@ def main(page: ft.Page):
         ])
     )
 
-ft.app(target=main)
+ft.run(main)
