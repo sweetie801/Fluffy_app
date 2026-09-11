@@ -1,2 +1,3 @@
-product_name: "Fluffy"
-icon: "icon.png"
+app:
+  product_name: "Fluffy"
+  icon: "icon.png"
