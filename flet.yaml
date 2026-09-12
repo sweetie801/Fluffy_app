@@ -1,3 +1,6 @@
 app:
   product_name: "Fluffy"
+  description: "Fluffy AI Companion"
   icon: "icon.png"
+  org: "com.fluffy"
+  bundle_id: "com.sweetie.fluffy"
