@@ -1,2 +1,1 @@
-import flet as ft
-from google import genai
+flet
