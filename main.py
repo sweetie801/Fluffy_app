@@ -1,53 +1,63 @@
 import flet as ft
-from google import genai
+from groq import Groq
+
+GROQ_API_KEY = "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"
+
+client = Groq(api_key=GROQ_API_KEY)
 
 def main(page: ft.Page):
-    page.title = "Fluffy AI Companion"
-    page.vertical_alignment = ft.MainAxisAlignment.END
-    page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
-    page.scroll = ft.ScrollMode.AUTO
+    page.title = "Fluffy Chat 🐾"
+    page.theme_mode = ft.ThemeMode.LIGHT
+    page.padding = 20
 
-    # مفتاحكِ الحقيقي الذي قمتِ بإرساله
-    client = genai.Client(api_key="AQ.Ab8RN6J9pjs9dwaMlBlm0LoItfzd0tP2mV0_ZVp9WlVNJtUltg")
-
-    chat = ft.ListView(expand=1, spacing=10, auto_scroll=True)
+    chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
+    
+    user_input = ft.TextField(
+        hint_text="اكتبي رسالتك هنا...",
+        expand=True,
+        border_radius=20
+    )
 
     def send_click(e):
-        if not new_message.value:
+        if not user_input.value.strip():
             return
-
-        user_text = new_message.value
-        new_message.value = ""
-
-        chat.controls.append(ft.Text(f"أنت: {user_text}"))
+            
+        user_text = user_input.value
+        chat_list.controls.append(
+            ft.Text(f"أنت: {user_text}", size=16, weight=ft.FontWeight.BOLD)
+        )
+        user_input.value = ""
         page.update()
 
         try:
-            response = client.models.generate_content(
-                model="gemini-2.5-flash",
-                contents=user_text
+            response = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": "أنت قط ذكي ولطيف اسمه Fluffy تجيب باللغة العربية بأسلوب مرح."},
+                    {"role": "user", "content": user_text}
+                ],
+                model="llama-3.3-70b-versatile",
             )
-            bot_text = response.text
-            chat.controls.append(ft.Text(f"Fluffy: {bot_text}"))
-            
+            fluffy_reply = response.choices[0].message.content
         except Exception as err:
-            chat.controls.append(ft.Text(f"خطأ: {err}"))
-
+            fluffy_reply = f"حدث خطأ في الاتصال: {err}"
+        
+        chat_list.controls.append(
+            ft.Text(f"Fluffy 🐾: {fluffy_reply}", size=16, color=ft.Colors.BLUE_700)
+        )
         page.update()
 
-    new_message = ft.TextField(
-        hint_text="اكتبي رسالتك هنا...",
-        expand=True,
-        border_radius=20,
-        filled=True,
-        on_submit=send_click
+    send_button = ft.IconButton(
+        icon=ft.Icons.SEND_ROUNDED,
+        icon_color=ft.Colors.BLUE,
+        on_click=send_click
     )
-
-    send_button = ft.ElevatedButton("إرسال", on_click=send_click)
 
     page.add(
-        chat,
-        ft.Row([new_message, send_button])
+        ft.Text("مرحباً بك في Fluffy App 🐾", size=24, weight=ft.FontWeight.BOLD),
+        ft.Divider(),
+        chat_list,
+        ft.Row([user_input, send_button])
     )
 
-ft.app(target=main)
+if __name__ == "__main__":
+    ft.run(main, view=ft.AppView.WEB_BROWSER)
