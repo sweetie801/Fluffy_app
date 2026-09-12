@@ -7,8 +7,8 @@ def main(page: ft.Page):
     page.horizontal_alignment = ft.CrossAxisAlignment.CENTER
     page.scroll = ft.ScrollMode.AUTO
 
-    # تهيئة عميل الذكاء الاصطناعي مع المفتاح الصحيح
-    client = genai.Client(api_key="AIzaSyD-...") # سيتم تزويدك بالمفتاح أو يمكنك وضعه هنا مباشرة
+    # مفتاحكِ الحقيقي الذي قمتِ بإرساله
+    client = genai.Client(api_key="AQ.Ab8RN6J9pjs9dwaMlBlm0LoItfzd0tP2mV0_ZVp9WlVNJtUltg")
 
     chat = ft.ListView(expand=1, spacing=10, auto_scroll=True)
 
