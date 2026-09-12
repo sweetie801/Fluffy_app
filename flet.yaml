@@ -1,6 +1,9 @@
 app:
-  product_name: "Fluffy"
+  name: "Fluffy AI Companion"
   description: "Fluffy AI Companion"
   icon: "icon.png"
-  org: "com.fluffy"
-  bundle_id: "com.sweetie.fluffy"
+
+android:
+  package_name: "com.fluffy.companion"
+  compile_sdk_version: 34
+  target_sdk_version: 34
