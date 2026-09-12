@@ -30,7 +30,25 @@ def main(page: ft.Page):
         chat.controls.append(ft.Text(f"أنت: {user_text}", color=ft.Colors.PINK_300))
         page.update()
 
-        history.append({"role": "user", "parts": [user_text]})
+    user_text = new_message.value
+    new_message.value = ""
+
+    chat.controls.append(ft.Text(f"أنت: {user_text}"))
+    page.update()
+
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=user_text
+        )
+        bot_text = response.text
+        chat.controls.append(ft.Text(f"Fluffy: {bot_text}"))
+        
+    except Exception as err:
+        chat.controls.append(ft.Text(f"خطأ: {err}"))
+
+    page.update()
+
 
         try:
             response = client.models.generate_content(
