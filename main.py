@@ -5,7 +5,6 @@ GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
 
-# تعليمات الشخصية المخصصة لـ Fluffy
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
 
@@ -22,27 +21,26 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
 
-    # 1. الشريط العلوي
     header = ft.Column([
         ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
         ft.Divider()
     ])
 
-    # القائمة التي ستظهر فيها الرسائل
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # 2. عرض الصورة المخصصة للقطة
+    IMAGE_URL = "https://raw.githubusercontent.com/sweetie801/Fluffy_app/main/1000089518.png"
+
     welcome_logo = ft.Image(
-        src="welcome_logo.png",
-        width=140,
-        height=140,
+        src=IMAGE_URL,
+        width=150,
+        height=150,
         fit="contain"
     )
 
     welcome_content = ft.Column(
         controls=[
             welcome_logo,
-            ft.Container(height=15),
+            ft.Container(height=10),
             ft.Text(
                 "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
                 size=24,
@@ -61,7 +59,6 @@ def main(page: ft.Page):
         expand=True
     )
 
-    # 3. صندوق النص باللغة الإنجليزية
     user_input = ft.TextField(
         hint_text="Type a message...",
         expand=True,
@@ -74,7 +71,6 @@ def main(page: ft.Page):
             
         user_text = user_input.value
         
-        # عند إرسال أول رسالة تختفي صورة الترحيب والجملة ويظهر الشات
         if center_container in chat_area.controls:
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
@@ -91,7 +87,7 @@ def main(page: ft.Page):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.3-70b-specdec",
+                model="llama-3.3-70b-versatile",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
