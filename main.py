@@ -40,9 +40,10 @@ def main(page: ft.Page):
         text_align=ft.TextAlign.CENTER
     )
 
+    # حاوية لتوسيط النص باستخدام ft.Alignment(0, 0) لتفادي أي خطأ
     center_container = ft.Container(
         content=welcome_text,
-        alignment=ft.alignment.CENTER,
+        alignment=ft.Alignment(0, 0),
         expand=True
     )
 
