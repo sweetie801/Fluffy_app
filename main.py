@@ -30,14 +30,13 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # رابط الصورة المباشر لضمان ظهور القطة
-    IMAGE_URL = "https://raw.githubusercontent.com/sweetie801/Fluffy_app/main/1000089518.png"
-
+    # محاولة تحميل الصورة من المسار المحلي للملفات المرفوعة
     welcome_logo = ft.Image(
-        src=IMAGE_URL,
-        width=150,
-        height=150,
-        fit="contain"
+        src="1000089518.png",
+        width=140,
+        height=140,
+        fit="contain",
+        error_content=ft.Icon(name=ft.Icons.AUTO_AWESOME, size=60, color=ft.Colors.PINK_400) # بديل في حال عدم تحميل الملف
     )
 
     welcome_content = ft.Column(
@@ -74,7 +73,6 @@ def main(page: ft.Page):
             
         user_text = user_input.value
         
-        # عند إرسال أول رسالة تختفي الصورة المخصصة ويظهر الشات
         if center_container in chat_area.controls:
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
@@ -86,7 +84,6 @@ def main(page: ft.Page):
         page.update()
 
         try:
-            # استخدام الموديل المدعوم والسريع Llama 3.1 8B Instant
             response = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
