@@ -30,13 +30,13 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # محاولة تحميل الصورة من المسار المحلي للملفات المرفوعة
+    # محاولة تحميل الصورة مع معالجة الخطأ بطريقة صحيحة
     welcome_logo = ft.Image(
         src="1000089518.png",
         width=140,
         height=140,
         fit="contain",
-        error_content=ft.Icon(name=ft.Icons.AUTO_AWESOME, size=60, color=ft.Colors.PINK_400) # بديل في حال عدم تحميل الملف
+        error_content=ft.Icon(ft.Icons.AUTO_AWESOME, size=60, color=ft.Colors.PINK_400)
     )
 
     welcome_content = ft.Column(
