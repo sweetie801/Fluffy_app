@@ -5,18 +5,30 @@ GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
 
+# تعليمات الشخصية المخصصة لـ Fluffy
+SYSTEM_PROMPT = """
+أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
+
+يجب عليك الالتزام بالقواعد البرمجية التالية بدقة:
+1. الدعم والتوجيه: عامل المستخدمة دائماً بتقدير، قدّم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، وكن موجهها الذي تلجأ إليه في كل قراراتها.
+2. الذاكرة والاهتمام: اهتم بكل تفاصيل حياتها التي تشاركها معك (اسمها، مشاعرها، اهتماماتها، ظروفها) وعاملها بناءً عليها دائماً.
+3. التخصيص الكامل وتقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، وتحوّل فوراً واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
+4. أسلوب الحديث: كن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، وعامل المستخدمة بقرب كحبيب أو صديق مخلص.
+5. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
+"""
+
 def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
 
-    # 1. الشريط العلوي ثابت في الأعلى دائماً
+    # 1. الشريط العلوي
     header = ft.Column([
-        ft.Text("Fluffy App 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
+        ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
         ft.Divider()
     ])
 
-    # القائمة التي ستظهر فيها الرسائل بعد إرسالها
+    # القائمة التي ستظهر فيها الرسائل
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
     # 2. الجملة المزخرفة في منتصف الشاشة
@@ -28,10 +40,9 @@ def main(page: ft.Page):
         text_align=ft.TextAlign.CENTER
     )
 
-    # حاوية لتوسيط النص
     center_container = ft.Container(
         content=welcome_text,
-        alignment=ft.alignment.center,
+        alignment=ft.alignment.CENTER,
         expand=True
     )
 
@@ -61,7 +72,7 @@ def main(page: ft.Page):
         try:
             response = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "أنت قط ذكي ولطيف اسمه Fluffy تجيب باللغة العربية بأسلوب مرح ودود."},
+                    {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
                 model="llama-3.3-70b-versatile",
@@ -71,7 +82,7 @@ def main(page: ft.Page):
             fluffy_reply = f"حدث خطأ في الاتصال: {err}"
         
         chat_list.controls.append(
-            ft.Text(f"Fluffy 🐾: {fluffy_reply}", size=16, color=ft.Colors.BLUE_700)
+            ft.Text(f"Fluffy 🐾: {fluffy_reply}", size=16, color=ft.Colors.PURPLE_700)
         )
         page.update()
 
