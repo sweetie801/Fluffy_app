@@ -34,9 +34,9 @@ def main(page: ft.Page):
     # 2. عرض الصورة المخصصة للقطة
     welcome_logo = ft.Image(
         src="welcome_logo.png",
-        width=130,
-        height=130,
-        fit=ft.ImageFit.CONTAIN
+        width=140,
+        height=140,
+        fit="contain"
     )
 
     welcome_content = ft.Column(
