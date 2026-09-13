@@ -1,7 +1,7 @@
 import flet as ft
 from groq import Groq
 
-# مفتاح Groq الخاص بكِ
+# مفتاح الـ API الخاص بك
 GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
@@ -30,11 +30,12 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # أيقونة 🐾 داخلية مدمجة وبسيطة
-    welcome_icon = ft.Icon(
-        ft.Icons.PETS,
-        size=90,
-        color=ft.Colors.PINK_400
+    # عرض صورتك الخاصة من رابط ImgBB المباشر
+    welcome_icon = ft.Image(
+        src="https://i.ibb.co/Bxfwgpx/image.jpg",
+        width=120,
+        height=120,
+        fit=ft.ImageFit.CONTAIN
     )
 
     welcome_content = ft.Column(
@@ -82,13 +83,13 @@ def main(page: ft.Page):
         page.update()
 
         try:
-            # اسم الموديل الرسمي والدقيق
+            # استخدام النموذج الرسمي والمستقر من Groq
             response = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.1-8b-instant",
+                model="llama-3.3-70b-versatile",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
