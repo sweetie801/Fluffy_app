@@ -35,7 +35,7 @@ def main(page: ft.Page):
                     {"role": "system", "content": "أنت قط ذكي ولطيف اسمه Fluffy تجيب باللغة العربية بأسلوب مرح."},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8192",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
@@ -60,4 +60,4 @@ def main(page: ft.Page):
     )
 
 if __name__ == "__main__":
-    ft.run(main, view=ft.AppView.WEB_BROWSER)
+    ft.run(main)
