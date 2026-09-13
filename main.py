@@ -31,24 +31,39 @@ def main(page: ft.Page):
     # القائمة التي ستظهر فيها الرسائل
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # 2. الجملة المزخرفة في منتصف الشاشة
-    welcome_text = ft.Text(
-        "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-        size=26,
-        weight=ft.FontWeight.BOLD,
-        color=ft.Colors.PINK_600,
-        text_align=ft.TextAlign.CENTER
+    # 2. عرض الصورة المخصصة للقطة
+    welcome_logo = ft.Image(
+        src="welcome_logo.png",
+        width=130,
+        height=130,
+        fit=ft.ImageFit.CONTAIN
     )
 
-    # حاوية لتوسيط النص باستخدام ft.Alignment(0, 0) لتفادي أي خطأ
+    welcome_content = ft.Column(
+        controls=[
+            welcome_logo,
+            ft.Container(height=15),
+            ft.Text(
+                "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+                size=24,
+                weight=ft.FontWeight.BOLD,
+                color=ft.Colors.PINK_600,
+                text_align=ft.TextAlign.CENTER
+            ),
+        ],
+        horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+        alignment=ft.MainAxisAlignment.CENTER,
+    )
+
     center_container = ft.Container(
-        content=welcome_text,
+        content=welcome_content,
         alignment=ft.Alignment(0, 0),
         expand=True
     )
 
+    # 3. صندوق النص باللغة الإنجليزية
     user_input = ft.TextField(
-        hint_text="اكتبي رسالتك هنا...",
+        hint_text="Type a message...",
         expand=True,
         border_radius=20
     )
@@ -59,7 +74,7 @@ def main(page: ft.Page):
             
         user_text = user_input.value
         
-        # عند إرسال أول رسالة تختفي الجملة المزخرفة ويظهر الشات
+        # عند إرسال أول رسالة تختفي صورة الترحيب والجملة ويظهر الشات
         if center_container in chat_area.controls:
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
@@ -76,7 +91,7 @@ def main(page: ft.Page):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="llama-3.3-70b-specdec",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
