@@ -1,7 +1,7 @@
 import flet as ft
 from groq import Groq
 
-# مفتاح API الخاص بك في Groq
+# مفتاح الـ API الخاص بك
 GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
@@ -30,19 +30,17 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # محاولة تحميل الصورة مع معالجة الخطأ بطريقة صحيحة
-    welcome_logo = ft.Image(
-        src="1000089518.png",
-        width=140,
-        height=140,
-        fit="contain",
-        error_content=ft.Icon(ft.Icons.AUTO_AWESOME, size=60, color=ft.Colors.PINK_400)
+    # أيقونة بسيطة ومباشرة في منتصف الشاشة 🐾
+    welcome_icon = ft.Icon(
+        ft.Icons.PETS,
+        size=100,
+        color=ft.Colors.PINK_400
     )
 
     welcome_content = ft.Column(
         controls=[
-            welcome_logo,
-            ft.Container(height=10),
+            welcome_icon,
+            ft.Container(height=15),
             ft.Text(
                 "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
                 size=24,
@@ -84,12 +82,13 @@ def main(page: ft.Page):
         page.update()
 
         try:
+            # استخدام الموديل المستقر والدقيق من Groq
             response = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.1-8b-instant",
+                model="openai/gpt-oss-20b",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
