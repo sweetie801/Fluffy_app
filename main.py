@@ -10,8 +10,31 @@ def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 20
 
+    # 1. الشريط العلوي ثابت في الأعلى دائماً
+    header = ft.Column([
+        ft.Text("Fluffy App 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
+        ft.Divider()
+    ])
+
+    # القائمة التي ستظهر فيها الرسائل بعد إرسالها
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
+    # 2. الجملة المزخرفة في منتصف الشاشة
+    welcome_text = ft.Text(
+        "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+        size=26,
+        weight=ft.FontWeight.BOLD,
+        color=ft.Colors.PINK_600,
+        text_align=ft.TextAlign.CENTER
+    )
+
+    # حاوية لتوسيط النص
+    center_container = ft.Container(
+        content=welcome_text,
+        alignment=ft.alignment.center,
+        expand=True
+    )
+
     user_input = ft.TextField(
         hint_text="اكتبي رسالتك هنا...",
         expand=True,
@@ -23,8 +46,14 @@ def main(page: ft.Page):
             return
             
         user_text = user_input.value
+        
+        # عند إرسال أول رسالة تختفي الجملة المزخرفة ويظهر الشات
+        if center_container in chat_area.controls:
+            chat_area.controls.remove(center_container)
+            chat_area.controls.append(chat_list)
+
         chat_list.controls.append(
-            ft.Text(f"أنت: {user_text}", size=16, weight=ft.FontWeight.BOLD)
+            ft.Text(f"أنتِ: {user_text}", size=16, weight=ft.FontWeight.BOLD)
         )
         user_input.value = ""
         page.update()
@@ -32,10 +61,10 @@ def main(page: ft.Page):
         try:
             response = client.chat.completions.create(
                 messages=[
-                    {"role": "system", "content": "أنت قط ذكي ولطيف اسمه Fluffy تجيب باللغة العربية بأسلوب مرح."},
+                    {"role": "system", "content": "أنت قط ذكي ولطيف اسمه Fluffy تجيب باللغة العربية بأسلوب مرح ودود."},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.1-8192",
+                model="llama-3.3-70b-versatile",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
@@ -48,14 +77,15 @@ def main(page: ft.Page):
 
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
-        icon_color=ft.Colors.BLUE,
+        icon_color=ft.Colors.PURPLE,
         on_click=send_click
     )
 
+    chat_area = ft.Column(controls=[center_container], expand=True)
+
     page.add(
-        ft.Text("مرحباً بك في Fluffy App 🐾", size=24, weight=ft.FontWeight.BOLD),
-        ft.Divider(),
-        chat_list,
+        header,
+        chat_area,
         ft.Row([user_input, send_button])
     )
 
