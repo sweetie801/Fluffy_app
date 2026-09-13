@@ -28,11 +28,16 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    welcome_icon = ft.Image(
-        src="https://i.ibb.co/Bxfwgpx/image.jpg",
-        width=120,
-        height=120,
-        fit="contain"
+    # الصورة مدموجة بدون إطار أو تظليل
+    welcome_icon = ft.Container(
+        content=ft.Image(
+            src="https://i.ibb.co/Bxfwgpx/image.jpg",
+            fit="contain",
+        ),
+        width=150,
+        height=150,
+        bgcolor=ft.Colors.TRANSPARENT,
+        alignment=ft.Alignment(0, 0)
     )
 
     welcome_content = ft.Column(
@@ -80,7 +85,6 @@ async def main(page: ft.Page):
         page.update()
 
         try:
-            # تشغيل طلب الشبكة في الخلفية دون تجميد التطبيق
             loop = asyncio.get_running_loop()
             response = await loop.run_in_executor(
                 None,
@@ -89,7 +93,7 @@ async def main(page: ft.Page):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_text}
                     ],
-                    model="llama-3.3-70b-versatile",
+                    model="llama3-70b-8192",
                 )
             )
             fluffy_reply = response.choices[0].message.content
