@@ -1,7 +1,7 @@
 import flet as ft
 from groq import Groq
 
-# مفتاح الـ API الخاص بك
+# مفتاح Groq الخاص بكِ
 GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
@@ -30,10 +30,10 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # أيقونة بسيطة ومباشرة في منتصف الشاشة 🐾
+    # أيقونة 🐾 داخلية مدمجة وبسيطة
     welcome_icon = ft.Icon(
         ft.Icons.PETS,
-        size=100,
+        size=90,
         color=ft.Colors.PINK_400
     )
 
@@ -82,13 +82,13 @@ def main(page: ft.Page):
         page.update()
 
         try:
-            # استخدام الموديل المستقر والدقيق من Groq
+            # اسم الموديل الرسمي والدقيق
             response = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                model="openai/gpt-oss-20b",
+                model="llama-3.1-8b-instant",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
