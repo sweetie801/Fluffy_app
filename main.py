@@ -30,12 +30,12 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # عرض صورتك الخاصة من رابط ImgBB المباشر
+    # عرض صورتك الخاصة من رابط ImgBB المباشر بدون خاصية ImageFit المسببة للخطأ
     welcome_icon = ft.Image(
         src="https://i.ibb.co/Bxfwgpx/image.jpg",
         width=120,
         height=120,
-        fit=ft.ImageFit.CONTAIN
+        fit="contain"
     )
 
     welcome_content = ft.Column(
