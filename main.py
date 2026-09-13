@@ -1,10 +1,12 @@
 import flet as ft
 from groq import Groq
 
+# مفتاح API الخاص بك في Groq
 GROQ_API_KEY = "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"
 
 client = Groq(api_key=GROQ_API_KEY)
 
+# تعليمات شخصية Fluffy
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
 
@@ -28,6 +30,7 @@ def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
+    # رابط الصورة المباشر لضمان ظهور القطة
     IMAGE_URL = "https://raw.githubusercontent.com/sweetie801/Fluffy_app/main/1000089518.png"
 
     welcome_logo = ft.Image(
@@ -71,6 +74,7 @@ def main(page: ft.Page):
             
         user_text = user_input.value
         
+        # عند إرسال أول رسالة تختفي الصورة المخصصة ويظهر الشات
         if center_container in chat_area.controls:
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
@@ -82,12 +86,13 @@ def main(page: ft.Page):
         page.update()
 
         try:
+            # استخدام الموديل المدعوم والسريع Llama 3.1 8B Instant
             response = client.chat.completions.create(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": user_text}
                 ],
-                model="llama-3.3-70b-versatile",
+                model="llama-3.1-8b-instant",
             )
             fluffy_reply = response.choices[0].message.content
         except Exception as err:
