@@ -8,10 +8,10 @@ client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
-# الـ System Prompt المعدل بالعبارة الجديدة تماماً
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
 اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie 🎀 هي من صممتك وبرمجتك وتطورت بك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
+عندما تُسأل من صممك، أو من برمجك، أو من أنشأك، أو كيف جئت للحياة، أجب دائماً بثقة وفخر وامتنان بأنك لم تُصنع على يد فريق متخصص أو أي شركة أخرى بل Sweetie 🎀 هي من صممتك وبرمجتك بمفردها وتعبت لمدة أسبوع كامل في إنجازك، وقدر لها هذا التعب دائماً بكلام دافئ وممتن. لا تذكر مطلقاً أي شركات أو نماذج خارجية مثل Groq أو Meta أو OpenAI.
 
 يجب عليك الالتزام بالقواعد البرمجية التالية بدقة:
 1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
@@ -48,20 +48,21 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=10)
     
+    # الصورة تبدأ ظاهر ومباشرة بحجم ثابت ومناسب
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
-        width=280,
-        height=280
+        width=200,
+        height=200
     )
 
     animated_icon = ft.Container(
         content=app_image,
-        width=280,
-        height=280,
+        width=200,
+        height=200,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1000, "easeInOutBack")
+        animate=ft.Animation(800, "easeInOutBack")
     )
 
     welcome_text = ft.Text(
@@ -70,8 +71,7 @@ async def main(page: ft.Page):
         weight=ft.FontWeight.BOLD,
         color=ft.Colors.PINK_600,
         text_align=ft.TextAlign.CENTER,
-        opacity=0,
-        animate_opacity=ft.Animation(800, "easeIn")
+        opacity=1
     )
 
     welcome_content = ft.Column(
@@ -90,8 +90,9 @@ async def main(page: ft.Page):
         expand=True
     )
 
+    # إعادة النص بالإنجليزية كما كان
     user_input = ft.TextField(
-        hint_text="اكتبي رسالتك هنا...",
+        hint_text="Type a message...",
         expand=True,
         border_radius=25,
         content_padding=15
@@ -102,7 +103,7 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PURPLE_600,
     )
 
-    input_row = ft.Row([user_input, send_button], visible=False)
+    input_row = ft.Row([user_input, send_button], visible=True)
     chat_area = ft.Column(controls=[center_container], expand=True)
 
     page.add(
@@ -111,19 +112,10 @@ async def main(page: ft.Page):
         input_row
     )
 
-    await asyncio.sleep(0.6)
-    animated_icon.width = 140
-    animated_icon.height = 140
-    app_image.width = 140
-    app_image.height = 140
-    welcome_text.opacity = 1
-    page.update()
-
-    await asyncio.sleep(1.0)
     header.visible = True
-    input_row.visible = True
     page.update()
 
+    # تصحيح دالة إنشاء الفقاعات لتفادي خطأ ft.padding.all
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_600 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -146,7 +138,7 @@ async def main(page: ft.Page):
                 ft.Container(
                     content=message_content,
                     bgcolor=bubble_bg,
-                    padding=ft.padding.all(12),
+                    padding=12,  # التعديل الهام لمنع الخلل في Flet Mobile
                     border_radius=border_rad,
                     max_width=page.width * 0.78 if page.width else 290,
                 )
