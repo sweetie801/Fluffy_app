@@ -8,7 +8,7 @@ client = Groq(api_key=GROQ_API_KEY)
 # رابط الصورة الشفافة المباشر
 IMAGE_URL = "https://i.ibb.co/C3fK305c/1000091478.png"
 
-# التعليمات مع مرونة اللغة وإطاعة أوامركِ
+# التعليمات الشاملة مع مرونة اللغة وإطاعة أوامركِ
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
 
@@ -35,17 +35,17 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # الصورة تبدأ بحجم كبير ثم تتقلص بسلاسة
+    # الصورة تبدأ بحجم كبير ثم تتقلص بسلاسة (استخدام ft.Animation المحدث بدلاً من ft.animation)
     animated_icon = ft.Container(
         content=ft.Image(
             src=IMAGE_URL,
-            fit="contain",
+            fit=ft.ImageFit.CONTAIN,
         ),
-        width=300,
-        height=300,
+        width=280,
+        height=280,
         bgcolor=ft.Colors.TRANSPARENT,
-        alignment=ft.Alignment(0, 0),
-        animate=ft.animation.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
+        alignment=ft.alignment.center,
+        animate=ft.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
     )
 
     welcome_text = ft.Text(
@@ -55,7 +55,7 @@ async def main(page: ft.Page):
         color=ft.Colors.PINK_600,
         text_align=ft.TextAlign.CENTER,
         opacity=0,
-        animate_opacity=ft.animation.Animation(800, ft.AnimationCurve.EASE_IN)
+        animate_opacity=ft.Animation(800, ft.AnimationCurve.EASE_IN)
     )
 
     welcome_content = ft.Column(
@@ -70,7 +70,7 @@ async def main(page: ft.Page):
 
     center_container = ft.Container(
         content=welcome_content,
-        alignment=ft.Alignment(0, 0),
+        alignment=ft.alignment.center,
         expand=True
     )
 
@@ -94,10 +94,10 @@ async def main(page: ft.Page):
         input_row
     )
 
-    # --- حركية الشاشة المتحركة عند بداية التشغيل ---
+    # --- الحركة عند بداية التشغيل ---
     await asyncio.sleep(0.4)
-    animated_icon.width = 150
-    animated_icon.height = 150
+    animated_icon.width = 140
+    animated_icon.height = 140
     welcome_text.opacity = 1
     page.update()
 
@@ -148,4 +148,4 @@ async def main(page: ft.Page):
     send_button.on_click = send_click
 
 if __name__ == "__main__":
-    ft.run(main)
+    ft.app(target=main)
