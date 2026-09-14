@@ -31,25 +31,7 @@ def clean_text_for_display(text: str) -> str:
         return ""
     text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
     text = re.sub(r'\\(log|ln|sin|cos|tan)', r'\1', text)
-    lines = text.split('\n')
-    cleaned_lines = []
-    for line in lines:
-        if re.search(r'[\u0600-\u06FF]', line):
-            cleaned_lines.append('\u200F' + line)
-        else:
-            cleaned_lines.append(line)
-    return '\n'.join(cleaned_lines)
-
-def get_working_text_model():
-    try:
-        models_list = client.models.list()
-        for model in models_list.data:
-            model_id = model.id.lower()
-            if not any(x in model_id for x in ["whisper", "tts", "orpheus", "vision", "guard"]):
-                return model.id
-    except Exception:
-        pass
-    return "llama-3.3-70b-versatile"
+    return text.strip()
 
 async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
@@ -57,7 +39,6 @@ async def main(page: ft.Page):
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
-    # استخدام الإحداثيات المباشرة للاتجاه لضمان التوافق التام ومنع أخطاء Alignment
     cat_gradient = ft.LinearGradient(
         begin=ft.Alignment(-1.0, -1.0),
         end=ft.Alignment(1.0, 1.0),
@@ -83,16 +64,16 @@ async def main(page: ft.Page):
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
-        width=320,
-        height=320
+        width=300,
+        height=300
     )
 
     animated_icon = ft.Container(
         content=app_image,
-        width=320,
-        height=320,
+        width=300,
+        height=300,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1000, "easeInOutBack")
+        animate=ft.Animation(1800, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
     )
 
     welcome_text = ft.ShaderMask(
@@ -105,7 +86,7 @@ async def main(page: ft.Page):
             text_align=ft.TextAlign.CENTER,
         ),
         opacity=0,
-        animate_opacity=ft.Animation(800, "easeIn")
+        animate_opacity=ft.Animation(1000, "easeIn")
     )
 
     welcome_content = ft.Column(
@@ -125,23 +106,23 @@ async def main(page: ft.Page):
     )
 
     user_input = ft.TextField(
-        hint_text="اكتبي رسالتك هنا...",
-        hint_style=ft.TextStyle(color=ft.Colors.PINK_300),
+        hint_text="Type a message...",
+        hint_style=ft.TextStyle(color=ft.Colors.PINK_200),
         expand=True,
         multiline=True,
         min_lines=1,
         max_lines=4,
         border_radius=20,
         border_color=ft.Colors.PURPLE_200,
-        focused_border_color=ft.Colors.PINK_400,
-        cursor_color=ft.Colors.PINK_400,
+        focused_border_color=ft.Colors.PINK_200,
+        cursor_color=ft.Colors.PINK_300,
         selection_color=ft.Colors.PINK_100,
         content_padding=12
     )
 
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
-        icon_color=ft.Colors.PINK_400,
+        icon_color=ft.Colors.PINK_300,
     )
 
     input_row = ft.Row([user_input, send_button], visible=False, vertical_alignment=ft.CrossAxisAlignment.END)
@@ -155,21 +136,21 @@ async def main(page: ft.Page):
 
     page.update()
 
-    # الانتظار لثانيتين في البداية
     await asyncio.sleep(2.0)
     
-    animated_icon.width = 170
-    animated_icon.height = 170
-    app_image.width = 170
-    app_image.height = 170
-    welcome_text.opacity = 1
+    animated_icon.width = 160
+    animated_icon.height = 160
+    app_image.width = 160
+    app_image.height = 160
     page.update()
 
-    await asyncio.sleep(0.8)
+    await asyncio.sleep(1.2)
+    welcome_text.opacity = 1
     header.visible = True
     input_row.visible = True
     page.update()
 
+    # إنشاء النص مع حل مشكلة التداخل واستخدام ft.Text للنصوص العادية مع ضبط الاتجاه
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_200 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -183,20 +164,23 @@ async def main(page: ft.Page):
 
         formatted_text = clean_text_for_display(text)
 
-        md_text = ft.Markdown(
+        # تحسين عرض النص لمنع التداخل والتعارض بين اللغات
+        text_widget = ft.Text(
             value=formatted_text,
+            size=14,
             selectable=True,
-            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+            rtl=True if re.search(r'[\u0600-\u06FF]', formatted_text) else False,
+            style=ft.TextStyle(height=1.4)
         )
 
         return ft.Row(
             controls=[
                 ft.Container(
-                    content=md_text,
+                    content=text_widget,
                     bgcolor=bubble_bg,
-                    padding=12,
+                    padding=ft.padding.symmetric(horizontal=14, vertical=10),
                     border_radius=border_rad,
-                    width=280,
+                    constraints=ft.BoxConstraints(max_width=280)
                 )
             ],
             alignment=alignment
@@ -207,7 +191,7 @@ async def main(page: ft.Page):
             controls=[
                 ft.Container(
                     content=ft.Row([
-                        ft.ProgressRing(width=16, height=16, stroke_width=2, color=ft.Colors.PINK_400),
+                        ft.ProgressRing(width=16, height=16, stroke_width=2, color=ft.Colors.PINK_300),
                         ft.Text(" Fluffy يكتب الآن...", size=13, color=ft.Colors.GREY_700)
                     ], tight=True),
                     bgcolor=ft.Colors.PURPLE_50,
@@ -224,7 +208,7 @@ async def main(page: ft.Page):
             return
             
         user_input.value = ""
-        send_button.disabled = True
+        page.update()
         
         if center_container in chat_area.controls:
             chat_area.controls.remove(center_container)
@@ -238,7 +222,6 @@ async def main(page: ft.Page):
 
         try:
             loop = asyncio.get_running_loop()
-            selected_model = await loop.run_in_executor(None, get_working_text_model)
             
             response = await loop.run_in_executor(
                 None,
@@ -247,7 +230,7 @@ async def main(page: ft.Page):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_text}
                     ],
-                    model=selected_model,
+                    model="llama-3.3-70b-versatile",
                 )
             )
             raw_reply = response.choices[0].message.content
@@ -259,7 +242,6 @@ async def main(page: ft.Page):
             chat_list.controls.remove(loading_bubble)
 
         chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
-        
         send_button.disabled = False
         page.update()
 
