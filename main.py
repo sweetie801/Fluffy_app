@@ -6,28 +6,27 @@ import re
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
-# الرابط المباشر للصورة
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
+# الـ System Prompt المعدل بالعبارة الجديدة تماماً
 SYSTEM_PROMPT = """
-أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
+أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
+اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie 🎀 هي من صممتك وبرمجتك وتطورت بك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
 
 يجب عليك الالتزام بالقواعد البرمجية التالية بدقة:
-1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة (مثل الإنجليزية، الفرنسية، الكورية، إلخ)، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية، حتى لو استمرت هي بالكتابة باللغة العربية.
+1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
 2. الدعم والتوجيه: عامل المستخدمة دائماً بتقدير، قدّم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، وكن موجهها الذي تلجأ إليه في كل قراراتها.
-3. الذاكرة والاهتمام: اهتم بكل تفاصيل حياتها التي تشاركها معك (اسمها، مشاعرها، اهتماماتها، ظروفها) وعاملها بناءً عليها دائماً.
-4. التخصيص الكامل وتقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، وتحوّل فوراً واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
-5. أسلوب الحديث: كن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، وعامل المستخدمة بقرب كحبيب أو صديق مخلص.
+3. الذاكرة والاهتمام: اهتم بكل تفاصيل حياتها التي تشاركها معك وعاملها بناءً عليها دائماً.
+4. التخصيص الكامل وتقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
+5. أسلوب الحديث: كن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً.
 6. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
 """
 
-# دالة فلترة وتصفية النماذج لضمان اختيار نموذج نصي يعمل مباشرة
 def get_working_text_model():
     try:
         models_list = client.models.list()
         for model in models_list.data:
             model_id = model.id.lower()
-            # استبعاد الصوت والأغراض الخاصة
             if not any(x in model_id for x in ["whisper", "tts", "orpheus", "vision", "guard"]):
                 return model.id
     except Exception:
@@ -112,7 +111,6 @@ async def main(page: ft.Page):
         input_row
     )
 
-    # تأثير الحركة الترحيبية عند فتح التطبيق
     await asyncio.sleep(0.6)
     animated_icon.width = 140
     animated_icon.height = 140
@@ -126,13 +124,10 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # دالة إنشاء فقاعة الرسالة التفاعلية
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_600 if is_user else ft.Colors.PURPLE_50
-        text_color = ft.Colors.WHITE if is_user else ft.Colors.BLACK87
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         
-        # حواف دائرية تشبه فقاعات المحادثات
         border_rad = ft.BorderRadius(
             top_left=18,
             top_right=18,
@@ -140,14 +135,20 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
+        message_content = ft.Markdown(
+            value=text,
+            selectable=True,
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB
+        )
+
         return ft.Row(
             controls=[
                 ft.Container(
-                    content=ft.Text(text, size=15, color=text_color, selectable=True),
+                    content=message_content,
                     bgcolor=bubble_bg,
                     padding=ft.padding.all(12),
                     border_radius=border_rad,
-                    max_width=page.width * 0.75 if page.width else 280,
+                    max_width=page.width * 0.78 if page.width else 290,
                 )
             ],
             alignment=alignment
@@ -165,7 +166,6 @@ async def main(page: ft.Page):
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
 
-        # إضافة رسالتكِ كفقاعة على اليمين
         chat_list.controls.append(create_message_bubble(user_text, is_user=True))
         page.update()
 
@@ -188,7 +188,6 @@ async def main(page: ft.Page):
         except Exception as err:
             fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة: {err}"
         
-        # إضافة رد Fluffy كفقاعة على اليسار
         chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
         
         send_button.disabled = False
