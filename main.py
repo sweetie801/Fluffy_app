@@ -66,12 +66,13 @@ async def main(page: ft.Page):
         height=300
     )
 
+    # الأيقونة تبدأ بحجم كبير 300x300
     animated_icon = ft.Container(
         content=app_image,
         width=300,
         height=300,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1000, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
+        animate=ft.Animation(1500, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
     )
 
     welcome_text = ft.ShaderMask(
@@ -84,7 +85,7 @@ async def main(page: ft.Page):
             text_align=ft.TextAlign.CENTER,
         ),
         opacity=0,
-        animate_opacity=ft.Animation(800, "easeIn")
+        animate_opacity=ft.Animation(1000, "easeIn")
     )
 
     welcome_content = ft.Column(
@@ -134,8 +135,8 @@ async def main(page: ft.Page):
 
     page.update()
 
-    # تقليل مهلة الانتظار لتظهر الحركة وتصغير الأيقونة بشكل أسرع بكثير
-    await asyncio.sleep(0.5)
+    # انتظار ثانيتين لظهور الأيقونة بحجمها الكبير ثم البدء بتصغيرها
+    await asyncio.sleep(1.8)
     
     animated_icon.width = 160
     animated_icon.height = 160
@@ -143,7 +144,7 @@ async def main(page: ft.Page):
     app_image.height = 160
     page.update()
 
-    await asyncio.sleep(0.8)
+    await asyncio.sleep(1.0)
     welcome_text.opacity = 1
     header.visible = True
     input_row.visible = True
@@ -170,7 +171,7 @@ async def main(page: ft.Page):
             style=ft.TextStyle(height=1.4)
         )
 
-        # تم تصحيح حشوة الفقاعة لتجنب الخطأ المباشر
+        # تم حل خيار constraints غير المدعوم
         return ft.Row(
             controls=[
                 ft.Container(
@@ -178,7 +179,6 @@ async def main(page: ft.Page):
                     bgcolor=bubble_bg,
                     padding=ft.Padding(14, 10, 14, 10),
                     border_radius=border_rad,
-                    constraints=ft.BoxConstraints(max_width=280)
                 )
             ],
             alignment=alignment
@@ -205,7 +205,6 @@ async def main(page: ft.Page):
         if not user_text:
             return
             
-        # تفريغ خانة النص وتحديث الشاشة فوراً لمنع تعليق الكلام
         user_input.value = ""
         send_button.disabled = True
         page.update()
