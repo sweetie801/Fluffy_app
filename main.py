@@ -2,7 +2,8 @@ import flet as ft
 from groq import Groq
 import asyncio
 
-GROQ_API_KEY = "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"
+# مفتاح الـ API الجديد الخاص بك
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 SYSTEM_PROMPT = """
@@ -93,7 +94,7 @@ async def main(page: ft.Page):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_text}
                     ],
-                    model="llama3-70b-8192",
+                    model="llama-3.1-8b-instant",
                 )
             )
             fluffy_reply = response.choices[0].message.content
