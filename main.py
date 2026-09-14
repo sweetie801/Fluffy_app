@@ -2,9 +2,12 @@ import flet as ft
 from groq import Groq
 import asyncio
 
-# مفتاح الـ API الجديد الخاص بك
+# مفتاح Groq الخاص بكِ
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
+
+# رابط الصورة الشفافة الجديد الخاص بكِ
+IMAGE_URL = "https://i.ibb.co/v439Hh2X/image.png"
 
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
@@ -29,14 +32,14 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # الصورة مدموجة بدون إطار أو تظليل
+    # تعرض الصورة الشفافة بنقاء وبدون خلفية بيضاء أو مربعات
     welcome_icon = ft.Container(
         content=ft.Image(
-            src="https://i.ibb.co/Bxfwgpx/image.jpg",
+            src=IMAGE_URL,
             fit="contain",
         ),
-        width=150,
-        height=150,
+        width=160,
+        height=160,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0)
     )
@@ -94,7 +97,7 @@ async def main(page: ft.Page):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_text}
                     ],
-                    model="llama-3.1-8b-instant",
+                    model="llama-3.3-70b-versatile",  # الموديل المعتمد والأكثر استقراراً في Groq
                 )
             )
             fluffy_reply = response.choices[0].message.content
