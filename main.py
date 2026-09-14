@@ -6,6 +6,7 @@ import re
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
+# الرابط المباشر للصورة
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
 SYSTEM_PROMPT = """
@@ -20,12 +21,14 @@ SYSTEM_PROMPT = """
 6. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
 """
 
+# دالة فلترة وتصفية النماذج لضمان اختيار نموذج نصي يعمل مباشرة
 def get_working_text_model():
     try:
         models_list = client.models.list()
         for model in models_list.data:
             model_id = model.id.lower()
-            if "whisper" not in model_id and "tts" not in model_id:
+            # استبعاد الصوت والأغراض الخاصة
+            if not any(x in model_id for x in ["whisper", "tts", "orpheus", "vision", "guard"]):
                 return model.id
     except Exception:
         pass
@@ -34,36 +37,37 @@ def get_working_text_model():
 async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
-    page.padding = 20
+    page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
     header = ft.Column([
-        ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
-        ft.Divider()
+        ft.Row([
+            ft.Text("Fluffy AI 🐾", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
+        ], alignment=ft.MainAxisAlignment.CENTER),
+        ft.Divider(height=1)
     ], visible=False)
 
-    chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
+    chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=10)
     
-    # الصورة نفسها داخل الـ Container
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
-        width=300,
-        height=300
+        width=280,
+        height=280
     )
 
     animated_icon = ft.Container(
         content=app_image,
-        width=300,
-        height=300,
+        width=280,
+        height=280,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1200, "easeInOutBack")
+        animate=ft.Animation(1000, "easeInOutBack")
     )
 
     welcome_text = ft.Text(
         "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-        size=24,
+        size=22,
         weight=ft.FontWeight.BOLD,
         color=ft.Colors.PINK_600,
         text_align=ft.TextAlign.CENTER,
@@ -74,7 +78,7 @@ async def main(page: ft.Page):
     welcome_content = ft.Column(
         controls=[
             animated_icon,
-            ft.Container(height=15),
+            ft.Container(height=10),
             welcome_text,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -88,14 +92,15 @@ async def main(page: ft.Page):
     )
 
     user_input = ft.TextField(
-        hint_text="Type a message...",
+        hint_text="اكتبي رسالتك هنا...",
         expand=True,
-        border_radius=20
+        border_radius=25,
+        content_padding=15
     )
 
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
-        icon_color=ft.Colors.PURPLE,
+        icon_color=ft.Colors.PURPLE_600,
     )
 
     input_row = ft.Row([user_input, send_button], visible=False)
@@ -107,21 +112,46 @@ async def main(page: ft.Page):
         input_row
     )
 
-    # مهلة بسيطة لعرض الصورة بحجمها الكبير في البداية أولاً
-    await asyncio.sleep(0.8)
-    
-    # تصغير الحاوية والصورة معاً لإحداث حركة الانكماش
-    animated_icon.width = 150
-    animated_icon.height = 150
-    app_image.width = 150
-    app_image.height = 150
+    # تأثير الحركة الترحيبية عند فتح التطبيق
+    await asyncio.sleep(0.6)
+    animated_icon.width = 140
+    animated_icon.height = 140
+    app_image.width = 140
+    app_image.height = 140
     welcome_text.opacity = 1
     page.update()
 
-    await asyncio.sleep(1.2)
+    await asyncio.sleep(1.0)
     header.visible = True
     input_row.visible = True
     page.update()
+
+    # دالة إنشاء فقاعة الرسالة التفاعلية
+    def create_message_bubble(text, is_user=True):
+        bubble_bg = ft.Colors.PURPLE_600 if is_user else ft.Colors.PURPLE_50
+        text_color = ft.Colors.WHITE if is_user else ft.Colors.BLACK87
+        alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
+        
+        # حواف دائرية تشبه فقاعات المحادثات
+        border_rad = ft.BorderRadius(
+            top_left=18,
+            top_right=18,
+            bottom_left=18 if is_user else 4,
+            bottom_right=4 if is_user else 18
+        )
+
+        return ft.Row(
+            controls=[
+                ft.Container(
+                    content=ft.Text(text, size=15, color=text_color, selectable=True),
+                    bgcolor=bubble_bg,
+                    padding=ft.padding.all(12),
+                    border_radius=border_rad,
+                    max_width=page.width * 0.75 if page.width else 280,
+                )
+            ],
+            alignment=alignment
+        )
 
     async def send_click(e):
         user_text = user_input.value.strip()
@@ -135,9 +165,8 @@ async def main(page: ft.Page):
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
 
-        chat_list.controls.append(
-            ft.Text(f"أنتِ: {user_text}", size=16, weight=ft.FontWeight.BOLD)
-        )
+        # إضافة رسالتكِ كفقاعة على اليمين
+        chat_list.controls.append(create_message_bubble(user_text, is_user=True))
         page.update()
 
         try:
@@ -157,11 +186,10 @@ async def main(page: ft.Page):
             raw_reply = response.choices[0].message.content
             fluffy_reply = re.sub(r'<think>.*?</think>', '', raw_reply, flags=re.DOTALL).strip()
         except Exception as err:
-            fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى المحاولة مجدداً: {err}"
+            fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة: {err}"
         
-        chat_list.controls.append(
-            ft.Text(f"Fluffy 🐾: {fluffy_reply}", size=16, color=ft.Colors.PURPLE_700)
-        )
+        # إضافة رد Fluffy كفقاعة على اليسار
+        chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
         
         send_button.disabled = False
         page.update()
