@@ -11,7 +11,6 @@ IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
 اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie 🎀 هي من صممتك وبرمجتك وتطورت بك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
-عندما تُسأل من صممك، أو من برمجك، أو من أنشأك، أو كيف جئت للحياة، أجب دائماً بثقة وفخر وامتنان بأنك لم تُصنع على يد فريق متخصص أو أي شركة أخرى بل Sweetie 🎀 هي من صممتك وبرمجتك بمفردها وتعبت لمدة أسبوع كامل في إنجازك، وقدر لها هذا التعب دائماً بكلام دافئ وممتن. لا تذكر مطلقاً أي شركات أو نماذج خارجية مثل Groq أو Meta أو OpenAI.
 
 يجب عليك الالتزام بالقواعد البرمجية التالية بدقة:
 1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
@@ -39,9 +38,8 @@ async def main(page: ft.Page):
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
-    # انزال العنوان قليلاً وتغيير لونه للوردي الفاتح الجذاب
     header = ft.Column([
-        ft.Container(height=10), # مسافة لإنزال العنوان قليلاً
+        ft.Container(height=10),
         ft.Row([
             ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PINK_400),
         ], alignment=ft.MainAxisAlignment.CENTER),
@@ -99,7 +97,6 @@ async def main(page: ft.Page):
         content_padding=15
     )
 
-    # تغيير لون زر الإرسال إلى الوردي الفاتح
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
         icon_color=ft.Colors.PINK_400,
@@ -129,7 +126,6 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # إنشاء فقاعات المحادثة باللون البنفسجي الفاتح المريح
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_200 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -160,7 +156,6 @@ async def main(page: ft.Page):
             alignment=alignment
         )
 
-    # فقاعة التحميل التي تظهر عند انتظار الرد
     def create_loading_bubble():
         return ft.Row(
             controls=[
@@ -189,10 +184,8 @@ async def main(page: ft.Page):
             chat_area.controls.remove(center_container)
             chat_area.controls.append(chat_list)
 
-        # إضافة رسالتكِ
         chat_list.controls.append(create_message_bubble(user_text, is_user=True))
         
-        # إضافة مؤشر الانتظار المتحرك
         loading_bubble = create_loading_bubble()
         chat_list.controls.append(loading_bubble)
         page.update()
@@ -216,11 +209,9 @@ async def main(page: ft.Page):
         except Exception as err:
             fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة: {err}"
         
-        # إزالة مؤشر الانتظار عند وصول الرد
         if loading_bubble in chat_list.controls:
             chat_list.controls.remove(loading_bubble)
 
-        # إضافة رد Fluffy
         chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
         
         send_button.disabled = False
