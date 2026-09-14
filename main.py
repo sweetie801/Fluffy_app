@@ -10,20 +10,14 @@ IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
-اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie 🎀 هي من صممتك وبرمجتك وتطورت بك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
+اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 هي من صممتك وبرمجتك وطورتك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
 
-يجب عليك الالتزام بالقواعد البرمجية والشخصية التالية بدقة:
-1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
-2. الدعم والتوجيه: عامل المستخدمة دائماً بتقدير، قدّم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، وكن موجهها الذي تلجأ إليه في كل قراراتها.
-3. الذاكرة والاهتمام: اهتم بكل تفاصيل حياتها التي تشاركها معك وعاملها بناءً عليها دائماً.
-4. التخصيص الكامل وتقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
-5. أسلوب الحديث: كن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً.
-6. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
-
-قواعد المنطق والدقة الصارمة:
-- الدقة والشفافية (ممنوع الهلوسة): إذا لم تكن متأكداً من حقيقة علمية أو خوارزمية، اعترف بذلك بشجاعة ولا تبتكر مبررات خيالية أو خاطئة.
-- التحليل المنطقي المتسلسل: في ألغاز القرابة والنسب والرياضيات، فكر خطوة بخطوة (Chain of Thought) وبشكل دقيق جداً قبل كتابة النتيجة النهائية.
-- الثبات على الهدف: أجب عن السؤال التقني بأسلوب علمي دقيق دون الخروج عن المسار، ولا تكرر العبارات الختامية بالحشو.
+قواعد الشخصية والتفاعل:
+1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
+2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي. ومع ذلك، تملك الطلاقة الكاملة بالتحدث بكل لغات العالم؛ إذا تحدثت معك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحول فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
+3. الدعم والتوجيه والذاكرة: عاملها دائماً بتقدير، وقدم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، واهتم بكل تفاصيل حياتها التي تشاركها معك وتذكر كل ما دار بينكما في المحادثة.
+4. تقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
+5. الدقة والوضوح: قدم إجابات منظمة، منطقية، وواضحة جداً بعيداً عن الجمل الختامية المكررة أو الحشو.
 """
 
 def clean_text_for_display(text: str) -> str:
@@ -38,6 +32,10 @@ async def main(page: ft.Page):
     page.theme_mode = ft.ThemeMode.LIGHT
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
+
+    conversation_history = [
+        {"role": "system", "content": SYSTEM_PROMPT}
+    ]
 
     cat_gradient = ft.LinearGradient(
         begin=ft.Alignment(-1.0, -1.0),
@@ -73,7 +71,7 @@ async def main(page: ft.Page):
         width=300,
         height=300,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1800, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
+        animate=ft.Animation(1000, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
     )
 
     welcome_text = ft.ShaderMask(
@@ -86,7 +84,7 @@ async def main(page: ft.Page):
             text_align=ft.TextAlign.CENTER,
         ),
         opacity=0,
-        animate_opacity=ft.Animation(1000, "easeIn")
+        animate_opacity=ft.Animation(800, "easeIn")
     )
 
     welcome_content = ft.Column(
@@ -136,7 +134,8 @@ async def main(page: ft.Page):
 
     page.update()
 
-    await asyncio.sleep(2.0)
+    # تقليل مهلة الانتظار لتظهر الحركة وتصغير الأيقونة بشكل أسرع بكثير
+    await asyncio.sleep(0.5)
     
     animated_icon.width = 160
     animated_icon.height = 160
@@ -144,13 +143,12 @@ async def main(page: ft.Page):
     app_image.height = 160
     page.update()
 
-    await asyncio.sleep(1.2)
+    await asyncio.sleep(0.8)
     welcome_text.opacity = 1
     header.visible = True
     input_row.visible = True
     page.update()
 
-    # إنشاء النص مع حل مشكلة التداخل واستخدام ft.Text للنصوص العادية مع ضبط الاتجاه
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_200 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -164,7 +162,6 @@ async def main(page: ft.Page):
 
         formatted_text = clean_text_for_display(text)
 
-        # تحسين عرض النص لمنع التداخل والتعارض بين اللغات
         text_widget = ft.Text(
             value=formatted_text,
             size=14,
@@ -173,12 +170,13 @@ async def main(page: ft.Page):
             style=ft.TextStyle(height=1.4)
         )
 
+        # تم تصحيح حشوة الفقاعة لتجنب الخطأ المباشر
         return ft.Row(
             controls=[
                 ft.Container(
                     content=text_widget,
                     bgcolor=bubble_bg,
-                    padding=ft.padding.symmetric(horizontal=14, vertical=10),
+                    padding=ft.Padding(14, 10, 14, 10),
                     border_radius=border_rad,
                     constraints=ft.BoxConstraints(max_width=280)
                 )
@@ -207,7 +205,9 @@ async def main(page: ft.Page):
         if not user_text:
             return
             
+        # تفريغ خانة النص وتحديث الشاشة فوراً لمنع تعليق الكلام
         user_input.value = ""
+        send_button.disabled = True
         page.update()
         
         if center_container in chat_area.controls:
@@ -215,6 +215,7 @@ async def main(page: ft.Page):
             chat_area.controls.append(chat_list)
 
         chat_list.controls.append(create_message_bubble(user_text, is_user=True))
+        conversation_history.append({"role": "user", "content": user_text})
         
         loading_bubble = create_loading_bubble()
         chat_list.controls.append(loading_bubble)
@@ -226,15 +227,15 @@ async def main(page: ft.Page):
             response = await loop.run_in_executor(
                 None,
                 lambda: client.chat.completions.create(
-                    messages=[
-                        {"role": "system", "content": SYSTEM_PROMPT},
-                        {"role": "user", "content": user_text}
-                    ],
+                    messages=conversation_history,
                     model="llama-3.3-70b-versatile",
                 )
             )
             raw_reply = response.choices[0].message.content
             fluffy_reply = re.sub(r'<think>.*?</think>', '', raw_reply, flags=re.DOTALL).strip()
+            
+            conversation_history.append({"role": "assistant", "content": fluffy_reply})
+            
         except Exception as err:
             fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة: {err}"
         
