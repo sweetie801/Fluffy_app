@@ -51,7 +51,7 @@ async def main(page: ft.Page):
         height=320,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0),
-        animate=ft.animation.Animation(1200, ft.AnimationCurve.EASE_IN_OUT_BACK)
+        animate=ft.Animation(1200, ft.AnimationCurve.EASE_IN_OUT_BACK)
     )
 
     welcome_text = ft.Text(
@@ -61,7 +61,7 @@ async def main(page: ft.Page):
         color=ft.Colors.PINK_600,
         text_align=ft.TextAlign.CENTER,
         opacity=0,
-        animate_opacity=ft.animation.Animation(800, ft.AnimationCurve.EASE_IN)
+        animate_opacity=ft.Animation(800, ft.AnimationCurve.EASE_IN)
     )
 
     welcome_content = ft.Column(
