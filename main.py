@@ -8,7 +8,7 @@ client = Groq(api_key=GROQ_API_KEY)
 # رابط الصورة الشفافة المباشر
 IMAGE_URL = "https://i.ibb.co/C3fK305c/1000091478.png"
 
-# التعليمات الشاملة مع مرونة اللغة وإطاعة أوامركِ
+# التعليمات الشاملة لـ Fluffy
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
 
@@ -35,11 +35,11 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # الصورة تبدأ بحجم كبير ثم تتقلص بسلاسة (استخدام ft.Animation المحدث بدلاً من ft.animation)
+    # الصورة والأنيميشن
     animated_icon = ft.Container(
         content=ft.Image(
             src=IMAGE_URL,
-            fit=ft.ImageFit.CONTAIN,
+            fit="contain",
         ),
         width=280,
         height=280,
@@ -94,7 +94,7 @@ async def main(page: ft.Page):
         input_row
     )
 
-    # --- الحركة عند بداية التشغيل ---
+    # --- بداية الأنيميشن عند الفتح ---
     await asyncio.sleep(0.4)
     animated_icon.width = 140
     animated_icon.height = 140
@@ -106,7 +106,7 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # --- دالة الإرسال ---
+    # --- دالة الإرسال والرد ---
     async def send_click(e):
         if not user_input.value.strip():
             return
@@ -148,4 +148,4 @@ async def main(page: ft.Page):
     send_button.on_click = send_click
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    ft.run(main)
