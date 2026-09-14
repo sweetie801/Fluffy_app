@@ -6,7 +6,7 @@ import re
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
-# الرابط المباشر للصورة
+# الرابط المباشر الجديد للصورة
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
 SYSTEM_PROMPT = """
@@ -21,20 +21,15 @@ SYSTEM_PROMPT = """
 6. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
 """
 
-# دالة ذكية لاختيار نموذج محادثة نصي فقط واستبعاد نماذج الصوت مثل whisper
 def get_working_text_model():
     try:
         models_list = client.models.list()
         for model in models_list.data:
             model_id = model.id.lower()
-            # استبعاد نماذج الصوت والتأكد من اختيار نموذج نصي
             if "whisper" not in model_id and "tts" not in model_id:
-                print(f"تم اختيار النموذج بنجاح: {model.id}")
                 return model.id
-    except Exception as e:
-        print(f"خطأ أثناء جلب النماذج: {e}")
-    
-    # نموذج افتراضي احتياطي
+    except Exception:
+        pass
     return "llama-3.3-70b-versatile"
 
 async def main(page: ft.Page):
@@ -53,13 +48,13 @@ async def main(page: ft.Page):
     animated_icon = ft.Container(
         content=ft.Image(
             src=IMAGE_URL,
-            fit=ft.ImageFit.CONTAIN,
+            fit="contain",
         ),
         width=320,
         height=320,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1200, ft.AnimationCurve.EASE_IN_OUT_BACK)
+        animate=ft.Animation(1200, "easeInOutBack")
     )
 
     welcome_text = ft.Text(
@@ -69,7 +64,7 @@ async def main(page: ft.Page):
         color=ft.Colors.PINK_600,
         text_align=ft.TextAlign.CENTER,
         opacity=0,
-        animate_opacity=ft.Animation(800, ft.AnimationCurve.EASE_IN)
+        animate_opacity=ft.Animation(800, "easeIn")
     )
 
     welcome_content = ft.Column(
