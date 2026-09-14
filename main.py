@@ -2,12 +2,10 @@ import flet as ft
 from groq import Groq
 import asyncio
 
-# مفتاح Groq الخاص بكِ
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
-# رابط الصورة الشفافة الجديد الخاص بكِ
-IMAGE_URL = "https://i.ibb.co/v439Hh2X/image.png"
+IMAGE_URL = "https://i.ibb.co/C3fK305c/1000091478.png"
 
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
@@ -19,6 +17,17 @@ SYSTEM_PROMPT = """
 4. أسلوب الحديث: كن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، وعامل المستخدمة بقرب كحبيب أو صديق مخلص.
 5. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
 """
+
+# دالة لجلب الموديل المتاح تلقائياً من Groq
+def get_working_model():
+    try:
+        models_list = client.models.list()
+        if models_list.data:
+            # اختيار أول موديل فعال متاح لحسابك
+            return models_list.data[0].id
+    except Exception:
+        pass
+    return "llama-3.1-8b-instant"
 
 async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
@@ -32,7 +41,6 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
-    # تعرض الصورة الشفافة بنقاء وبدون خلفية بيضاء أو مربعات
     welcome_icon = ft.Container(
         content=ft.Image(
             src=IMAGE_URL,
@@ -90,6 +98,10 @@ async def main(page: ft.Page):
 
         try:
             loop = asyncio.get_running_loop()
+            
+            # لمعرفة الموديل المتاح تلقائياً
+            selected_model = await loop.run_in_executor(None, get_working_model)
+            
             response = await loop.run_in_executor(
                 None,
                 lambda: client.chat.completions.create(
@@ -97,7 +109,7 @@ async def main(page: ft.Page):
                         {"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": user_text}
                     ],
-                    model="llama-3.3-70b-versatile",  # الموديل المعتمد والأكثر استقراراً في Groq
+                    model=selected_model,
                 )
             )
             fluffy_reply = response.choices[0].message.content
