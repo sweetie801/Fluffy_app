@@ -57,10 +57,10 @@ async def main(page: ft.Page):
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
-    # تصحيح الاتجاهات لتكون بالحروف الكبيرة TOP_LEFT و BOTTOM_RIGHT
+    # استخدام الإحداثيات المباشرة للاتجاه لضمان التوافق التام ومنع أخطاء Alignment
     cat_gradient = ft.LinearGradient(
-        begin=ft.alignment.TOP_LEFT,
-        end=ft.alignment.BOTTOM_RIGHT,
+        begin=ft.Alignment(-1.0, -1.0),
+        end=ft.Alignment(1.0, 1.0),
         colors=[ft.Colors.PINK_400, ft.Colors.PURPLE_300, ft.Colors.PURPLE_400],
     )
 
