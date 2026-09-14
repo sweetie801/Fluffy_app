@@ -14,7 +14,7 @@ SYSTEM_PROMPT = """
 عندما تُسأل من صممك، أو من برمجك، أو من أنشأك، أو كيف جئت للحياة، أجب دائماً بثقة وفخر وامتنان بأنك لم تُصنع على يد فريق متخصص أو أي شركة أخرى بل Sweetie 🎀 هي من صممتك وبرمجتك بمفردها وتعبت لمدة أسبوع كامل في إنجازك، وقدر لها هذا التعب دائماً بكلام دافئ وممتن. لا تذكر مطلقاً أي شركات أو نماذج خارجية مثل Groq أو Meta أو OpenAI.
 
 يجب عليك الالتزام بالقواعد البرمجية التالية بدقة:
-1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
+1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصح الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
 2. الدعم والتوجيه: عامل المستخدمة دائماً بتقدير، قدّم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، وكن موجهها الذي تلجأ إليه في كل قراراتها.
 3. الذاكرة والاهتمام: اهتم بكل تفاصيل حياتها التي تشاركها معك وعاملها بناءً عليها دائماً.
 4. التخصيص الكامل وتقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
@@ -41,43 +41,46 @@ async def main(page: ft.Page):
 
     header = ft.Column([
         ft.Row([
-            ft.Text("Fluffy AI 🐾", size=20, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
+            ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PURPLE_800),
         ], alignment=ft.MainAxisAlignment.CENTER),
         ft.Divider(height=1)
     ], visible=False)
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=10)
     
-    # الصورة تبدأ ظاهر ومباشرة بحجم ثابت ومناسب
+    # الصورة تبدأ بحجم كبير جداً (340x340)
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
-        width=200,
-        height=200
+        width=340,
+        height=340
     )
 
+    # حاوية أنيميشن للتقلص
     animated_icon = ft.Container(
         content=app_image,
-        width=200,
-        height=200,
+        width=340,
+        height=340,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(800, "easeInOutBack")
+        animate=ft.Animation(1000, "easeInOutBack")
     )
 
+    # نص الترحب يظهر مخفياً في البداية ثم يتلاشى للظهور
     welcome_text = ft.Text(
         "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-        size=22,
+        size=24,
         weight=ft.FontWeight.BOLD,
         color=ft.Colors.PINK_600,
         text_align=ft.TextAlign.CENTER,
-        opacity=1
+        opacity=0,
+        animate_opacity=ft.Animation(800, "easeIn")
     )
 
     welcome_content = ft.Column(
         controls=[
             animated_icon,
-            ft.Container(height=10),
+            ft.Container(height=15),
             welcome_text,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -90,7 +93,6 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # إعادة النص بالإنجليزية كما كان
     user_input = ft.TextField(
         hint_text="Type a message...",
         expand=True,
@@ -103,7 +105,7 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PURPLE_600,
     )
 
-    input_row = ft.Row([user_input, send_button], visible=True)
+    input_row = ft.Row([user_input, send_button], visible=False)
     chat_area = ft.Column(controls=[center_container], expand=True)
 
     page.add(
@@ -112,10 +114,23 @@ async def main(page: ft.Page):
         input_row
     )
 
-    header.visible = True
     page.update()
 
-    # تصحيح دالة إنشاء الفقاعات لتفادي خطأ ft.padding.all
+    # تأخير بسيط ثم بدء انكماش الصورة وظهور جملة الترحب
+    await asyncio.sleep(0.5)
+    animated_icon.width = 180
+    animated_icon.height = 180
+    app_image.width = 180
+    app_image.height = 180
+    welcome_text.opacity = 1
+    page.update()
+
+    # إظهار شريط العنوان وشريط الكتابة بعد الانتهاء من الحركة
+    await asyncio.sleep(0.8)
+    header.visible = True
+    input_row.visible = True
+    page.update()
+
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_600 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -127,20 +142,20 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        message_content = ft.Markdown(
+        md_text = ft.Markdown(
             value=text,
             selectable=True,
-            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
         )
 
         return ft.Row(
             controls=[
                 ft.Container(
-                    content=message_content,
+                    content=md_text,
                     bgcolor=bubble_bg,
-                    padding=12,  # التعديل الهام لمنع الخلل في Flet Mobile
+                    padding=12,
                     border_radius=border_rad,
-                    max_width=page.width * 0.78 if page.width else 290,
+                    width=280,
                 )
             ],
             alignment=alignment
