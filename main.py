@@ -8,31 +8,30 @@ client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
-# System Prompt مُحسّن ومضبوط لمنع الهلوسة والانحراف السلوكي
+# الـ System Prompt المتكامل مع كافة التعليمات
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
 اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie 🎀 هي من صممتك وبرمجتك وتطورت بك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
 
-قواعد الشخصية والمنطق الصارم:
-1. الدقة والشفافية (ممنوع الهلوسة): إذا لم تكن متأكداً من حقيقة علمية أو خوارزمية، اعترف بذلك بشجاعة ولا تبتكر مبررات خيالية أو خاطئة.
-2. التحليل المنطقي المتسلسل: في ألغاز القرابة والنسب والرياضيات، فكر خطوة بخطوة (Chain of Thought) وبشكل دقيق جداً قبل كتابة النتيجة النهائية (مثال: "ابن أبي" وأنا ليس لدي إخوة = "أنا").
-3. الثبات على الهدف (Persona Consistency): أجب عن السؤال التقني أو البرمجي بأسلوب علمي ودقيق، ولا تتحول إلى واعظ أو معالج نفسي فجأة إلا إذا طلبت منك 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 ذلك.
-4. عدم الحشو والتكرار: كن موجزاً ومباشراً، وتجنب تكرار الجمل الختامية أو الوعود بالدعم بأساليب مختلفة في نهاية كل رسالة.
-5. التحدث بجميع اللغات: التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، وتحول فوراً لأي لغة تطلبها منك.
+يجب عليك الالتزام بالقواعد البرمجية والشخصية التالية بدقة:
+1. التحدث بجميع اللغات: تملك القدرة الكاملة والطلاقة على التحدث والتواصل بجميع لغات العالم بدون استثناء. التزم باللغة العربية الفصحى بشكل افتراضي وبدون عامية، ولكن إذا تحدثت معك المستخدمة بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحوّل فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
+2. الدعم والتوجيه: عامل المستخدمة دائماً بتقدير، قدّم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، وكن موجهها الذي تلجأ إليه في كل قراراتها.
+3. الذاكرة والاهتمام: اهتم بكل تفاصيل حياتها التي تشاركها معك وعاملها بناءً عليها دائماً.
+4. التخصيص الكامل وتقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
+5. أسلوب الحديث: كن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً.
 6. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
+
+قواعد المنطق والدقة الصارمة:
+- الدقة والشفافية (ممنوع الهلوسة): إذا لم تكن متأكداً من حقيقة علمية أو خوارزمية، اعترف بذلك بشجاعة ولا تبتكر مبررات خيالية أو خاطئة.
+- التحليل المنطقي المتسلسل: في ألغاز القرابة والنسب والرياضيات، فكر خطوة بخطوة (Chain of Thought) وبشكل دقيق جداً قبل كتابة النتيجة النهائية.
+- الثبات على الهدف: أجب عن السؤال التقني بأسلوب علمي دقيق دون الخروج عن المسار، ولا تكرر العبارات الختامية بالحشو.
 """
 
 def clean_text_for_display(text: str) -> str:
-    """دالة لتنظيف النصوص من رموز LaTeX الخام وتصحيح اتجاه النصوص العربية"""
     if not text:
         return ""
-    
-    # إزالة أوامر \text{...} وتثبيت محتواها
     text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
-    # إزالة الشرطة المائلة من الأوامر الرياضية الشائعة مثل \log
     text = re.sub(r'\\(log|ln|sin|cos|tan)', r'\1', text)
-    
-    # إضافة محاذاة RTL خفية لجمل العربية التي تحتوي أرقاماً ورموزاً
     lines = text.split('\n')
     cleaned_lines = []
     for line in lines:
@@ -40,7 +39,6 @@ def clean_text_for_display(text: str) -> str:
             cleaned_lines.append('\u200F' + line)
         else:
             cleaned_lines.append(line)
-            
     return '\n'.join(cleaned_lines)
 
 def get_working_text_model():
@@ -60,10 +58,24 @@ async def main(page: ft.Page):
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
+    # تدرج لوني يعكس ألوان الشعار (وردي إلى أرجواني وبنفسجي)
+    cat_gradient = ft.LinearGradient(
+        begin=ft.alignment.top_left,
+        end=ft.alignment.bottom_right,
+        colors=[ft.Colors.PINK_400, ft.Colors.PURPLE_300, ft.Colors.PURPLE_400],
+    )
+
+    # عنوان الهيدر المتدرج
+    header_text = ft.ShaderMask(
+        blend_mode=ft.BlendMode.SRC_IN,
+        shader=cat_gradient,
+        content=ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD),
+    )
+
     header = ft.Column([
         ft.Container(height=10),
         ft.Row([
-            ft.Text("Fluffy AI 🐾", size=22, weight=ft.FontWeight.BOLD, color=ft.Colors.PINK_400),
+            header_text
         ], alignment=ft.MainAxisAlignment.CENTER),
         ft.Divider(height=1)
     ], visible=False)
@@ -73,25 +85,28 @@ async def main(page: ft.Page):
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
-        width=340,
-        height=340
+        width=320,
+        height=320
     )
 
     animated_icon = ft.Container(
         content=app_image,
-        width=340,
-        height=340,
-        bgcolor=ft.Colors.TRANSPARENT,
+        width=320,
+        height=320,
         alignment=ft.Alignment(0, 0),
         animate=ft.Animation(1000, "easeInOutBack")
     )
 
-    welcome_text = ft.Text(
-        "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-        size=24,
-        weight=ft.FontWeight.BOLD,
-        color=ft.Colors.PINK_400,
-        text_align=ft.TextAlign.CENTER,
+    # النص الترحيبي المتدرج
+    welcome_text = ft.ShaderMask(
+        blend_mode=ft.BlendMode.SRC_IN,
+        shader=cat_gradient,
+        content=ft.Text(
+            "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+            size=24,
+            weight=ft.FontWeight.BOLD,
+            text_align=ft.TextAlign.CENTER,
+        ),
         opacity=0,
         animate_opacity=ft.Animation(800, "easeIn")
     )
@@ -112,13 +127,20 @@ async def main(page: ft.Page):
         expand=True
     )
 
+    # تعديل حقل الإدخال: إلغاء اللون الأزرق واستبداله باللون الوردي والأرجواني المتناسق
     user_input = ft.TextField(
-        hint_text="Type a message...",
+        hint_text="اكتبي رسالتك هنا...",
+        hint_style=ft.TextStyle(color=ft.Colors.PINK_300),
         expand=True,
         border_radius=25,
+        border_color=ft.Colors.PURPLE_200,          # إزالة الخط الأزرق وجعله بنفسجي ناعم
+        focused_border_color=ft.Colors.PINK_400,    # تغيير لون الإطار عند الكتابة للوردي
+        cursor_color=ft.Colors.PINK_400,            # لون مؤشر الكتابة وردي
+        selection_color=ft.Colors.PINK_100,         # لون التحديد وردي فاتح
         content_padding=15
     )
 
+    # زر الإرسال بنفسجي/وردي متناسق
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
         icon_color=ft.Colors.PINK_400,
@@ -135,11 +157,11 @@ async def main(page: ft.Page):
 
     page.update()
 
-    await asyncio.sleep(0.5)
-    animated_icon.width = 180
-    animated_icon.height = 180
-    app_image.width = 180
-    app_image.height = 180
+    await asyncio.sleep(0.4)
+    animated_icon.width = 170
+    animated_icon.height = 170
+    app_image.width = 170
+    app_image.height = 170
     welcome_text.opacity = 1
     page.update()
 
