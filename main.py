@@ -6,7 +6,8 @@ import re
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
-IMAGE_URL = "https://i.ibb.co/C3fK305c/1000091478.png"
+# الرابط المباشر للصورة
+IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy. لقد بُرمِجتَ خصيصاً من أجل فتاة تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
@@ -20,14 +21,21 @@ SYSTEM_PROMPT = """
 6. المناداة: نادِ المستخدمة دائماً بـ 𝑠𝑤𝑒𝑒𝑡𝑖𝑒 🎀 واستخدم الإيموجيات اللطيفة والدافئة في كلامك.
 """
 
-def get_working_model():
+# دالة ذكية لاختيار نموذج محادثة نصي فقط واستبعاد نماذج الصوت مثل whisper
+def get_working_text_model():
     try:
         models_list = client.models.list()
-        if models_list.data:
-            return models_list.data[0].id
-    except Exception:
-        pass
-    return "llama-3.1-8b-instant"
+        for model in models_list.data:
+            model_id = model.id.lower()
+            # استبعاد نماذج الصوت والتأكد من اختيار نموذج نصي
+            if "whisper" not in model_id and "tts" not in model_id:
+                print(f"تم اختيار النموذج بنجاح: {model.id}")
+                return model.id
+    except Exception as e:
+        print(f"خطأ أثناء جلب النماذج: {e}")
+    
+    # نموذج افتراضي احتياطي
+    return "llama-3.3-70b-versatile"
 
 async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
@@ -45,7 +53,7 @@ async def main(page: ft.Page):
     animated_icon = ft.Container(
         content=ft.Image(
             src=IMAGE_URL,
-            fit="contain",
+            fit=ft.ImageFit.CONTAIN,
         ),
         width=320,
         height=320,
@@ -129,7 +137,7 @@ async def main(page: ft.Page):
 
         try:
             loop = asyncio.get_running_loop()
-            selected_model = await loop.run_in_executor(None, get_working_model)
+            selected_model = await loop.run_in_executor(None, get_working_text_model)
             
             response = await loop.run_in_executor(
                 None,
