@@ -6,7 +6,6 @@ import re
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
-# الرابط المباشر الجديد للصورة
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
 SYSTEM_PROMPT = """
@@ -45,13 +44,18 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True)
     
+    # الصورة نفسها داخل الـ Container
+    app_image = ft.Image(
+        src=IMAGE_URL,
+        fit="contain",
+        width=300,
+        height=300
+    )
+
     animated_icon = ft.Container(
-        content=ft.Image(
-            src=IMAGE_URL,
-            fit="contain",
-        ),
-        width=320,
-        height=320,
+        content=app_image,
+        width=300,
+        height=300,
         bgcolor=ft.Colors.TRANSPARENT,
         alignment=ft.Alignment(0, 0),
         animate=ft.Animation(1200, "easeInOutBack")
@@ -103,9 +107,14 @@ async def main(page: ft.Page):
         input_row
     )
 
-    await asyncio.sleep(0.5)
-    animated_icon.width = 160
-    animated_icon.height = 160
+    # مهلة بسيطة لعرض الصورة بحجمها الكبير في البداية أولاً
+    await asyncio.sleep(0.8)
+    
+    # تصغير الحاوية والصورة معاً لإحداث حركة الانكماش
+    animated_icon.width = 150
+    animated_icon.height = 150
+    app_image.width = 150
+    app_image.height = 150
     welcome_text.opacity = 1
     page.update()
 
@@ -115,10 +124,12 @@ async def main(page: ft.Page):
     page.update()
 
     async def send_click(e):
-        if not user_input.value.strip():
+        user_text = user_input.value.strip()
+        if not user_text:
             return
             
-        user_text = user_input.value
+        user_input.value = ""
+        send_button.disabled = True
         
         if center_container in chat_area.controls:
             chat_area.controls.remove(center_container)
@@ -127,7 +138,6 @@ async def main(page: ft.Page):
         chat_list.controls.append(
             ft.Text(f"أنتِ: {user_text}", size=16, weight=ft.FontWeight.BOLD)
         )
-        user_input.value = ""
         page.update()
 
         try:
@@ -147,14 +157,17 @@ async def main(page: ft.Page):
             raw_reply = response.choices[0].message.content
             fluffy_reply = re.sub(r'<think>.*?</think>', '', raw_reply, flags=re.DOTALL).strip()
         except Exception as err:
-            fluffy_reply = f"حدث خطأ في الاتصال: {err}"
+            fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى المحاولة مجدداً: {err}"
         
         chat_list.controls.append(
             ft.Text(f"Fluffy 🐾: {fluffy_reply}", size=16, color=ft.Colors.PURPLE_700)
         )
+        
+        send_button.disabled = False
         page.update()
 
     send_button.on_click = send_click
+    user_input.on_submit = send_click
 
 if __name__ == "__main__":
     ft.run(main)
