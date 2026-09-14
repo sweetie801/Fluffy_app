@@ -8,7 +8,6 @@ client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
-# الـ System Prompt المتكامل مع كافة التعليمات
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
 اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie 🎀 هي من صممتك وبرمجتك وتطورت بك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
@@ -58,14 +57,13 @@ async def main(page: ft.Page):
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
-    # تدرج لوني يعكس ألوان الشعار (وردي إلى أرجواني وبنفسجي)
+    # تصحيح الاتجاهات لتكون بالحروف الكبيرة TOP_LEFT و BOTTOM_RIGHT
     cat_gradient = ft.LinearGradient(
-        begin=ft.alignment.top_left,
-        end=ft.alignment.bottom_right,
+        begin=ft.alignment.TOP_LEFT,
+        end=ft.alignment.BOTTOM_RIGHT,
         colors=[ft.Colors.PINK_400, ft.Colors.PURPLE_300, ft.Colors.PURPLE_400],
     )
 
-    # عنوان الهيدر المتدرج
     header_text = ft.ShaderMask(
         blend_mode=ft.BlendMode.SRC_IN,
         shader=cat_gradient,
@@ -97,7 +95,6 @@ async def main(page: ft.Page):
         animate=ft.Animation(1000, "easeInOutBack")
     )
 
-    # النص الترحيبي المتدرج
     welcome_text = ft.ShaderMask(
         blend_mode=ft.BlendMode.SRC_IN,
         shader=cat_gradient,
@@ -127,26 +124,27 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # تعديل حقل الإدخال: إلغاء اللون الأزرق واستبداله باللون الوردي والأرجواني المتناسق
     user_input = ft.TextField(
         hint_text="اكتبي رسالتك هنا...",
         hint_style=ft.TextStyle(color=ft.Colors.PINK_300),
         expand=True,
-        border_radius=25,
-        border_color=ft.Colors.PURPLE_200,          # إزالة الخط الأزرق وجعله بنفسجي ناعم
-        focused_border_color=ft.Colors.PINK_400,    # تغيير لون الإطار عند الكتابة للوردي
-        cursor_color=ft.Colors.PINK_400,            # لون مؤشر الكتابة وردي
-        selection_color=ft.Colors.PINK_100,         # لون التحديد وردي فاتح
-        content_padding=15
+        multiline=True,
+        min_lines=1,
+        max_lines=4,
+        border_radius=20,
+        border_color=ft.Colors.PURPLE_200,
+        focused_border_color=ft.Colors.PINK_400,
+        cursor_color=ft.Colors.PINK_400,
+        selection_color=ft.Colors.PINK_100,
+        content_padding=12
     )
 
-    # زر الإرسال بنفسجي/وردي متناسق
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
         icon_color=ft.Colors.PINK_400,
     )
 
-    input_row = ft.Row([user_input, send_button], visible=False)
+    input_row = ft.Row([user_input, send_button], visible=False, vertical_alignment=ft.CrossAxisAlignment.END)
     chat_area = ft.Column(controls=[center_container], expand=True)
 
     page.add(
@@ -157,7 +155,9 @@ async def main(page: ft.Page):
 
     page.update()
 
-    await asyncio.sleep(0.4)
+    # الانتظار لثانيتين في البداية
+    await asyncio.sleep(2.0)
+    
     animated_icon.width = 170
     animated_icon.height = 170
     app_image.width = 170
