@@ -3,7 +3,6 @@ from groq import Groq
 import asyncio
 import re
 
-# المفتاح الجديد
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -32,8 +31,7 @@ async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = ft.Colors.WHITE
-    page.padding = 15
-    page.alignment = ft.MainAxisAlignment.CENTER
+    page.padding = 0
 
     conversation_history = [
         {"role": "system", "content": SYSTEM_PROMPT}
@@ -53,14 +51,13 @@ async def main(page: ft.Page):
 
     header = ft.Column([
         ft.Container(height=10),
-        ft.Row([
-            header_text
-        ], alignment=ft.MainAxisAlignment.CENTER),
+        ft.Row([header_text], alignment=ft.MainAxisAlignment.CENTER),
         ft.Divider(height=1)
     ], visible=False)
 
-    chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=10)
+    chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=12)
     
+    # تحسين سلاسة تقلص الأيقونة تدريجياً
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
@@ -68,12 +65,12 @@ async def main(page: ft.Page):
         height=300
     )
 
-    animated_icon = ft.Container(
+    animated_icon_container = ft.Container(
         content=app_image,
         width=300,
         height=300,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1500, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
+        animate=ft.Animation(1600, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
     )
 
     welcome_text = ft.ShaderMask(
@@ -81,7 +78,7 @@ async def main(page: ft.Page):
         shader=cat_gradient,
         content=ft.Text(
             "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-            size=24,
+            size=22,
             weight=ft.FontWeight.BOLD,
             text_align=ft.TextAlign.CENTER,
         ),
@@ -91,8 +88,8 @@ async def main(page: ft.Page):
 
     welcome_content = ft.Column(
         controls=[
-            animated_icon,
-            ft.Container(height=15),
+            animated_icon_container,
+            ft.Container(height=10),
             welcome_text,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -117,7 +114,8 @@ async def main(page: ft.Page):
         focused_border_color=ft.Colors.PINK_200,
         cursor_color=ft.Colors.PINK_300,
         selection_color=ft.Colors.PINK_100,
-        content_padding=12
+        content_padding=12,
+        bgcolor=ft.Colors.WHITE,
     )
 
     send_button = ft.IconButton(
@@ -125,30 +123,43 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PINK_300,
     )
 
+    # التدرج الممتد الناعم بأسفل الشاشة بانسجام كامل وبدون إطار رمادي
     bottom_glow = ft.Container(
-        height=180,
+        height=170,
+        expand=True,
         gradient=ft.RadialGradient(
             center=ft.Alignment(0, 1.0),
-            radius=1.3,
+            radius=2.0,
             colors=[
                 ft.Colors.PURPLE_100,
                 ft.Colors.PINK_50,
-                ft.Colors.TRANSPARENT
+                ft.Colors.WHITE,
             ]
         )
     )
 
-    input_controls_row = ft.Row([user_input, send_button], vertical_alignment=ft.CrossAxisAlignment.END)
+    input_controls_row = ft.Row(
+        [user_input, send_button],
+        vertical_alignment=ft.CrossAxisAlignment.CENTER
+    )
 
     input_row = ft.Stack(
         controls=[
             bottom_glow,
-            ft.Container(content=input_controls_row, padding=ft.Padding(0, 20, 0, 0))
+            ft.Container(
+                content=input_controls_row,
+                padding=ft.Padding(15, 30, 15, 15),
+                alignment=ft.Alignment(0, 1.0)
+            )
         ],
         visible=False
     )
 
-    chat_area = ft.Column(controls=[center_container], expand=True)
+    chat_area = ft.Container(
+        content=ft.Column(controls=[center_container], expand=True),
+        padding=ft.Padding(15, 0, 15, 0),
+        expand=True
+    )
 
     page.add(
         header,
@@ -158,20 +169,21 @@ async def main(page: ft.Page):
 
     page.update()
 
-    await asyncio.sleep(1.8)
-    
-    animated_icon.width = 160
-    animated_icon.height = 160
+    # مرحلة الحركة الابتدائية المتسلسلة
+    await asyncio.sleep(1.2)
+    animated_icon_container.width = 160
+    animated_icon_container.height = 160
     app_image.width = 160
     app_image.height = 160
     page.update()
 
-    await asyncio.sleep(1.0)
+    await asyncio.sleep(1.2)
     welcome_text.opacity = 1
     header.visible = True
     input_row.visible = True
     page.update()
 
+    # إنشاء الفقاعات بحجم مقيد يمنع تداخل النصوص
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_200 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -200,6 +212,7 @@ async def main(page: ft.Page):
                     bgcolor=bubble_bg,
                     padding=ft.Padding(14, 10, 14, 10),
                     border_radius=border_rad,
+                    max_width=290,  # حماية لمنع خروج أو تداخل النصوص
                 )
             ],
             alignment=alignment
@@ -223,16 +236,16 @@ async def main(page: ft.Page):
 
     async def send_click(e):
         user_text = user_input.value.strip()
-        if not user_text:
+        if not user_text or send_button.disabled:
             return
             
         user_input.value = ""
         send_button.disabled = True
         page.update()
         
-        if center_container in chat_area.controls:
-            chat_area.controls.remove(center_container)
-            chat_area.controls.append(chat_list)
+        if center_container in chat_area.content.controls:
+            chat_area.content.controls.remove(center_container)
+            chat_area.content.controls.append(chat_list)
 
         chat_list.controls.append(create_message_bubble(user_text, is_user=True))
         conversation_history.append({"role": "user", "content": user_text})
@@ -241,16 +254,24 @@ async def main(page: ft.Page):
         chat_list.controls.append(loading_bubble)
         page.update()
 
+        fluffy_reply = ""
         try:
             loop = asyncio.get_running_loop()
             
-            response = await loop.run_in_executor(
-                None,
-                lambda: client.chat.completions.create(
-                    messages=conversation_history,
-                    model="llama-3.1-8b-instant",
-                )
-            )
+            # محاولة الاستدعاء مع معالجة حماية لنماذج Groq الفعالة
+            def call_groq():
+                models_to_try = ["llama-3.1-8b-instant", "llama3-8b-8192"]
+                for model_name in models_to_try:
+                    try:
+                        return client.chat.completions.create(
+                            messages=conversation_history,
+                            model=model_name,
+                        )
+                    except Exception:
+                        continue
+                raise Exception("لا يمكن الاتصال بالنماذج المتاحة حالياً، يرجى التحقق من المفتاح.")
+
+            response = await loop.run_in_executor(None, call_groq)
             raw_reply = response.choices[0].message.content
             fluffy_reply = re.sub(r'<think>.*?</think>', '', raw_reply, flags=re.DOTALL).strip()
             
@@ -259,12 +280,13 @@ async def main(page: ft.Page):
         except Exception as err:
             fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة: {err}"
         
-        if loading_bubble in chat_list.controls:
-            chat_list.controls.remove(loading_bubble)
+        finally:
+            if loading_bubble in chat_list.controls:
+                chat_list.controls.remove(loading_bubble)
 
-        chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
-        send_button.disabled = False
-        page.update()
+            chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
+            send_button.disabled = False  # ضمان عدم تعليق الزر تحت أي ظرف
+            page.update()
 
     send_button.on_click = send_click
     user_input.on_submit = send_click
