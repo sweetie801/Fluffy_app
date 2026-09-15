@@ -66,7 +66,6 @@ async def main(page: ft.Page):
         height=300
     )
 
-    # الأيقونة تبدأ بحجم كبير 300x300
     animated_icon = ft.Container(
         content=app_image,
         width=300,
@@ -135,7 +134,6 @@ async def main(page: ft.Page):
 
     page.update()
 
-    # انتظار ثانيتين لظهور الأيقونة بحجمها الكبير ثم البدء بتصغيرها
     await asyncio.sleep(1.8)
     
     animated_icon.width = 160
@@ -171,7 +169,6 @@ async def main(page: ft.Page):
             style=ft.TextStyle(height=1.4)
         )
 
-        # تم حل خيار constraints غير المدعوم
         return ft.Row(
             controls=[
                 ft.Container(
@@ -223,11 +220,12 @@ async def main(page: ft.Page):
         try:
             loop = asyncio.get_running_loop()
             
+            # تم التحديث للنموذج الأسرع والأضمن استجابة
             response = await loop.run_in_executor(
                 None,
                 lambda: client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.3-70b-versatile",
+                    model="llama-3.1-8b-instant",
                 )
             )
             raw_reply = response.choices[0].message.content
