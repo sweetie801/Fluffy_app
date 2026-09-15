@@ -27,6 +27,20 @@ def clean_text_for_display(text: str) -> str:
     text = re.sub(r'\\(log|ln|sin|cos|tan)', r'\1', text)
     return text.strip()
 
+# دالة ذكية لتحديد أول نموذج نصوص متاح أوتوماتيكياً من Groq
+def get_available_text_model():
+    try:
+        models_list = client.models.list()
+        for m in models_list.data:
+            model_id = m.id.lower()
+            # استبعاد نماذج الصوت والتصوير وتحديد أول نموذج كتابة/محادثة
+            if "whisper" not in model_id and "vision" not in model_id and "safetensors" not in model_id:
+                return m.id
+    except Exception:
+        pass
+    # نموذج احتياطي أخير في حال تعذر جلب القائمة
+    return "llama-3.3-70b-versatile"
+
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
@@ -72,7 +86,6 @@ async def main(page: ft.Page):
         animate=ft.Animation(1400, ft.AnimationCurve.EASE_IN_OUT)
     )
 
-    # النص الترحيبي المعروض في الواجهة بكلمة Sweetie المزخرفة
     welcome_text = ft.ShaderMask(
         blend_mode=ft.BlendMode.SRC_IN,
         shader=cat_gradient,
@@ -123,34 +136,23 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PINK_300,
     )
 
-    bottom_glow = ft.Container(
-        height=120,
-        expand=True,
-        gradient=ft.RadialGradient(
-            center=ft.Alignment(0, 1.0),
-            radius=1.3,
-            colors=[
-                ft.Colors.PURPLE_100,
-                ft.Colors.PINK_50,
-                ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
-            ]
-        )
-    )
-
     input_controls_row = ft.Row(
         [user_input, send_button],
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    input_row = ft.Stack(
-        controls=[
-            bottom_glow,
-            ft.Container(
-                content=input_controls_row,
-                padding=ft.Padding(15, 0, 15, 12),
-                alignment=ft.Alignment(0, 1.0)
-            )
-        ],
+    input_row = ft.Container(
+        content=input_controls_row,
+        padding=ft.Padding(15, 20, 15, 20),
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment(0.0, -1.0),
+            end=ft.Alignment(0.0, 1.0),
+            colors=[
+                ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
+                ft.Colors.PINK_50,
+                ft.Colors.PURPLE_100,
+            ]
+        ),
         visible=False
     )
 
@@ -260,23 +262,12 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                models_to_try = [
-                    "llama-3.3-70b-versatile",
-                    "llama-3.1-8b-instant"
-                ]
-                
-                last_exception = None
-                for model_name in models_to_try:
-                    try:
-                        return client.chat.completions.create(
-                            messages=conversation_history,
-                            model=model_name,
-                        )
-                    except Exception as ex:
-                        last_exception = ex
-                        continue
-                        
-                raise last_exception
+                # جلب أول نموذج متاح ديناميكياً من خوادم Groq
+                chosen_model = get_available_text_model()
+                return client.chat.completions.create(
+                    messages=conversation_history,
+                    model=chosen_model,
+                )
 
             response = await loop.run_in_executor(None, call_groq)
             raw_reply = response.choices[0].message.content
@@ -285,7 +276,7 @@ async def main(page: ft.Page):
             conversation_history.append({"role": "assistant", "content": fluffy_reply})
             
         except Exception as err:
-            fluffy_reply = f"حدث خطأ في الاتصال: {err}"
+            fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة."
         
         finally:
             if loading_bubble in chat_list.controls:
