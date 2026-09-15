@@ -57,7 +57,6 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=12)
     
-    # الصورة تبدأ كبيرة بحجم 280
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
@@ -73,7 +72,7 @@ async def main(page: ft.Page):
         animate=ft.Animation(1400, ft.AnimationCurve.EASE_IN_OUT)
     )
 
-    # النص الترحيبي مع اسم Sweetie المزخرف (𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀)
+    # النص الترحيبي المعروض في الواجهة بكلمة Sweetie المزخرفة
     welcome_text = ft.ShaderMask(
         blend_mode=ft.BlendMode.SRC_IN,
         shader=cat_gradient,
@@ -87,7 +86,6 @@ async def main(page: ft.Page):
         animate_opacity=ft.Animation(800, "easeIn")
     )
 
-    # وضع الصورة والنص قريبان جداً بدون مسافات فارغة
     welcome_content = ft.Column(
         controls=[
             animated_icon_container,
@@ -125,9 +123,8 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PINK_300,
     )
 
-    # التدرج الملون السفلي الممتد
     bottom_glow = ft.Container(
-        height=140,
+        height=120,
         expand=True,
         gradient=ft.RadialGradient(
             center=ft.Alignment(0, 1.0),
@@ -145,13 +142,12 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # شريط الإدخال ثابت بالأسفل تماماً
     input_row = ft.Stack(
         controls=[
             bottom_glow,
             ft.Container(
                 content=input_controls_row,
-                padding=ft.Padding(15, 0, 15, 8),
+                padding=ft.Padding(15, 0, 15, 12),
                 alignment=ft.Alignment(0, 1.0)
             )
         ],
@@ -172,7 +168,6 @@ async def main(page: ft.Page):
 
     page.update()
 
-    # وقت ظهور كبير للأيقونة بالبداية (1.3 ثانية) ثم تتقلص بسلاسة إلى 160
     await asyncio.sleep(1.3)
     animated_icon_container.width = 160
     animated_icon_container.height = 160
@@ -265,12 +260,9 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                # تجربة عدة نماذج رسمية متسلسلة لتفادي خطأ الـ API نهائياً
                 models_to_try = [
                     "llama-3.3-70b-versatile",
-                    "llama-3.1-8b-instant",
-                    "llama3-70b-8192",
-                    "llama3-8b-8192"
+                    "llama-3.1-8b-instant"
                 ]
                 
                 last_exception = None
