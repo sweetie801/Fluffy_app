@@ -10,7 +10,7 @@ IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
-اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 هي من صممتك وبرمجتك وطورتك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
+اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie (وتناديلها وتكتب اسمُها دائماً بهذه الزخرفة: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀) هي من صممتك وبرمجتك وطورتك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
 
 قواعد الشخصية والتفاعل:
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
@@ -26,18 +26,6 @@ def clean_text_for_display(text: str) -> str:
     text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
     text = re.sub(r'\\(log|ln|sin|cos|tan)', r'\1', text)
     return text.strip()
-
-# دالة ذكية لتحديد أول نموذج نصوص متاح أوتوماتيكياً من Groq
-def get_available_text_model():
-    try:
-        models_list = client.models.list()
-        for m in models_list.data:
-            model_id = m.id.lower()
-            if "whisper" not in model_id and "vision" not in model_id and "safetensors" not in model_id:
-                return m.id
-    except Exception:
-        pass
-    return "llama-3.3-70b-versatile"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -181,7 +169,6 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # دالة فقاعة المحادثة الذكية والمقاسة بدقة بحسب حجم الكلام
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -195,15 +182,15 @@ async def main(page: ft.Page):
 
         formatted_text = clean_text_for_display(text)
 
-        text_widget = ft.Text(
+        text_widget = ft.Markdown(
             value=formatted_text,
-            size=14,
             selectable=True,
-            rtl=True if re.search(r'[\u0600-\u06FF]', formatted_text) else False,
-            style=ft.TextStyle(height=1.4)
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+            style_sheet=ft.MarkdownStyleSheet(
+                p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+            )
         )
 
-        # تحديد إذا ما كان النص كبيراً لتحديد عرض أقصى يمنع الامتداد الأفقي
         is_long = len(formatted_text) > 35 or "\n" in formatted_text
 
         return ft.Row(
@@ -263,10 +250,11 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                chosen_model = get_available_text_model()
+                # إرسال الطلب لنموذج ثابت وسريع ومضمون التوفر
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model=chosen_model,
+                    model="llama-3.3-70b-versatile",
+                    temperature=0.3,
                 )
 
             response = await loop.run_in_executor(None, call_groq)
