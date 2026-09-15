@@ -31,16 +31,17 @@ async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = ft.Colors.WHITE
-    page.padding = 0
+    page.padding = ft.padding.only(top=45, bottom=0, left=0, right=0)
 
     conversation_history = [
         {"role": "system", "content": SYSTEM_PROMPT}
     ]
 
+    # تدرج ألوان فاتح وناعم جداً للنصوص
     cat_gradient = ft.LinearGradient(
         begin=ft.Alignment(-1.0, -1.0),
         end=ft.Alignment(1.0, 1.0),
-        colors=[ft.Colors.PINK_400, ft.Colors.PURPLE_300, ft.Colors.PURPLE_400],
+        colors=[ft.Colors.PINK_300, ft.Colors.PINK_200, ft.Colors.PURPLE_200],
     )
 
     header_text = ft.ShaderMask(
@@ -50,14 +51,13 @@ async def main(page: ft.Page):
     )
 
     header = ft.Column([
-        ft.Container(height=10),
         ft.Row([header_text], alignment=ft.MainAxisAlignment.CENTER),
+        ft.Container(height=8),
         ft.Divider(height=1)
     ], visible=False)
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=12)
     
-    # تحسين سلاسة تقلص الأيقونة تدريجياً
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
@@ -70,7 +70,7 @@ async def main(page: ft.Page):
         width=300,
         height=300,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1600, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
+        animate=ft.Animation(1500, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
     )
 
     welcome_text = ft.ShaderMask(
@@ -123,17 +123,16 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PINK_300,
     )
 
-    # التدرج الممتد الناعم بأسفل الشاشة بانسجام كامل وبدون إطار رمادي
     bottom_glow = ft.Container(
-        height=170,
+        height=130,
         expand=True,
         gradient=ft.RadialGradient(
             center=ft.Alignment(0, 1.0),
-            radius=2.0,
+            radius=0.95,
             colors=[
                 ft.Colors.PURPLE_100,
                 ft.Colors.PINK_50,
-                ft.Colors.WHITE,
+                ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ]
         )
     )
@@ -148,7 +147,7 @@ async def main(page: ft.Page):
             bottom_glow,
             ft.Container(
                 content=input_controls_row,
-                padding=ft.Padding(15, 30, 15, 15),
+                padding=ft.Padding(15, 0, 15, 12),
                 alignment=ft.Alignment(0, 1.0)
             )
         ],
@@ -169,7 +168,6 @@ async def main(page: ft.Page):
 
     page.update()
 
-    # مرحلة الحركة الابتدائية المتسلسلة
     await asyncio.sleep(1.2)
     animated_icon_container.width = 160
     animated_icon_container.height = 160
@@ -183,7 +181,6 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # إنشاء الفقاعات بحجم مقيد يمنع تداخل النصوص
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_200 if is_user else ft.Colors.PURPLE_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -212,7 +209,7 @@ async def main(page: ft.Page):
                     bgcolor=bubble_bg,
                     padding=ft.Padding(14, 10, 14, 10),
                     border_radius=border_rad,
-                    max_width=290,  # حماية لمنع خروج أو تداخل النصوص
+                    width=280,
                 )
             ],
             alignment=alignment
@@ -258,7 +255,6 @@ async def main(page: ft.Page):
         try:
             loop = asyncio.get_running_loop()
             
-            # محاولة الاستدعاء مع معالجة حماية لنماذج Groq الفعالة
             def call_groq():
                 models_to_try = ["llama-3.1-8b-instant", "llama3-8b-8192"]
                 for model_name in models_to_try:
@@ -269,7 +265,7 @@ async def main(page: ft.Page):
                         )
                     except Exception:
                         continue
-                raise Exception("لا يمكن الاتصال بالنماذج المتاحة حالياً، يرجى التحقق من المفتاح.")
+                raise Exception("تعذر الاتصال بالنماذج المتاحة حالياً.")
 
             response = await loop.run_in_executor(None, call_groq)
             raw_reply = response.choices[0].message.content
@@ -285,7 +281,7 @@ async def main(page: ft.Page):
                 chat_list.controls.remove(loading_bubble)
 
             chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
-            send_button.disabled = False  # ضمان عدم تعليق الزر تحت أي ظرف
+            send_button.disabled = False
             page.update()
 
     send_button.on_click = send_click
