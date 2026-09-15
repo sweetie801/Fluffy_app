@@ -183,6 +183,7 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
+    # التعديل هنا: إضافة max_width=280 لمنع الامتداد الأفقي وجعل الأسطر تلتف تلقائياً
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -206,16 +207,12 @@ async def main(page: ft.Page):
 
         return ft.Row(
             controls=[
-                ft.Row(
-                    [
-                        ft.Container(
-                            content=text_widget,
-                            bgcolor=bubble_bg,
-                            padding=ft.Padding(12, 8, 12, 8),
-                            border_radius=border_rad,
-                        )
-                    ],
-                    tight=True
+                ft.Container(
+                    content=text_widget,
+                    bgcolor=bubble_bg,
+                    padding=ft.Padding(12, 8, 12, 8),
+                    border_radius=border_rad,
+                    max_width=280,
                 )
             ],
             alignment=alignment
