@@ -181,7 +181,7 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # تعديل دالة الفقاعة: استبدال max_width بـ BoxConstraints الصحيحة في Flet
+    # دالة فقاعة المحادثة الذكية والمقاسة بدقة بحسب حجم الكلام
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -203,14 +203,20 @@ async def main(page: ft.Page):
             style=ft.TextStyle(height=1.4)
         )
 
+        # تحديد إذا ما كان النص كبيراً لتحديد عرض أقصى يمنع الامتداد الأفقي
+        is_long = len(formatted_text) > 35 or "\n" in formatted_text
+
         return ft.Row(
             controls=[
                 ft.Container(
-                    content=text_widget,
+                    content=ft.Column(
+                        [text_widget],
+                        tight=True,
+                        width=260 if is_long else None
+                    ),
                     bgcolor=bubble_bg,
                     padding=ft.Padding(12, 8, 12, 8),
                     border_radius=border_rad,
-                    constraints=ft.BoxConstraints(max_width=280),
                 )
             ],
             alignment=alignment
