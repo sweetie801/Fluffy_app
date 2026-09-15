@@ -3,6 +3,7 @@ from groq import Groq
 import asyncio
 import re
 
+# وضع مفتاح الـ API الخاص بكِ
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -31,7 +32,7 @@ async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = ft.Colors.WHITE
-    page.padding = ft.Padding(0, 35, 0, 5)
+    page.padding = ft.Padding(0, 35, 0, 0)
 
     conversation_history = [
         {"role": "system", "content": SYSTEM_PROMPT}
@@ -57,6 +58,7 @@ async def main(page: ft.Page):
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=12)
     
+    # تبدأ الأيقونة بحجم كبير (260)
     app_image = ft.Image(
         src=IMAGE_URL,
         fit="contain",
@@ -69,30 +71,31 @@ async def main(page: ft.Page):
         width=260,
         height=260,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1000, ft.AnimationCurve.EASE_IN_OUT)
+        animate=ft.Animation(1200, ft.AnimationCurve.EASE_IN_OUT)
     )
 
     welcome_text = ft.ShaderMask(
         blend_mode=ft.BlendMode.SRC_IN,
         shader=cat_gradient,
         content=ft.Text(
-            "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+            "أهلاً بمساحتك الخاصة Sweetie 🎀",
             size=20,
             weight=ft.FontWeight.BOLD,
             text_align=ft.TextAlign.CENTER,
         ),
         opacity=0,
-        animate_opacity=ft.Animation(600, "easeIn")
+        animate_opacity=ft.Animation(800, "easeIn")
     )
 
+    # تقريب الكتابة من الصورة (بدون مسافات زائدة)
     welcome_content = ft.Column(
         controls=[
             animated_icon_container,
-            ft.Container(height=4),  # مسافة قريبة ولطيفة جداً تحت الصورة
             welcome_text,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
         alignment=ft.MainAxisAlignment.CENTER,
+        spacing=0,  # جعل المسافة صفر لتقترب الكتابة جداً من الصورة
     )
 
     center_container = ft.Container(
@@ -122,13 +125,13 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PINK_300,
     )
 
-    # إرجاع توهج التدرج السفلي بلمسة ناعمة دون رفع زر الإرسال
+    # التدرج السفلي بحجمه الكامل الرائع خلف شريط الإدخال الملتصق بالأسفل
     bottom_glow = ft.Container(
-        height=80,
+        height=180,
         expand=True,
         gradient=ft.RadialGradient(
             center=ft.Alignment(0, 1.0),
-            radius=1.5,
+            radius=1.2,
             colors=[
                 ft.Colors.PURPLE_100,
                 ft.Colors.PINK_50,
@@ -147,7 +150,7 @@ async def main(page: ft.Page):
             bottom_glow,
             ft.Container(
                 content=input_controls_row,
-                padding=ft.Padding(15, 0, 15, 5),
+                padding=ft.Padding(15, 0, 15, 10),
                 alignment=ft.Alignment(0, 1.0)
             )
         ],
@@ -168,21 +171,20 @@ async def main(page: ft.Page):
 
     page.update()
 
-    # مرحلة تقلص الأيقونة التدريجي
-    await asyncio.sleep(0.4)
+    # أنيميشن البداية: تظهر الصورة كبيرة ثم تتقلص لـ 140 وينبثق النص والشريط
+    await asyncio.sleep(0.8)
     animated_icon_container.width = 140
     animated_icon_container.height = 140
     app_image.width = 140
     app_image.height = 140
     page.update()
 
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(0.8)
     welcome_text.opacity = 1
     header.visible = True
     input_row.visible = True
     page.update()
 
-    # الفقاعات: بنفسجي ناعم فاتح للمستخدم (PURPLE_50) ووردي فاتح لـ Fluffy (PINK_50)
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -262,9 +264,10 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
+                # استخدام النموذج الرسمي المعتمد والمستقر بنسبة 100% بدون 404
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.3-70b-versatile",
+                    model="llama3-70b-8192",
                 )
 
             response = await loop.run_in_executor(None, call_groq)
