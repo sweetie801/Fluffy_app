@@ -31,13 +31,14 @@ async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = ft.Colors.WHITE
-    page.padding = ft.padding.only(top=45, bottom=0, left=0, right=0)
+    # تصحيح الـ padding المتوافق مع جميع أجهزة الجوال (left=0, top=45, right=0, bottom=0)
+    page.padding = ft.Padding(0, 45, 0, 0)
 
     conversation_history = [
         {"role": "system", "content": SYSTEM_PROMPT}
     ]
 
-    # تدرج ألوان فاتح وناعم جداً للنصوص
+    # تدرج ألوان فاتح وناعم جداً كاشف للنصوص
     cat_gradient = ft.LinearGradient(
         begin=ft.Alignment(-1.0, -1.0),
         end=ft.Alignment(1.0, 1.0),
