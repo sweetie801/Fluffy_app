@@ -31,14 +31,12 @@ async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = ft.Colors.WHITE
-    # تصحيح الـ padding المتوافق مع جميع أجهزة الجوال (left=0, top=45, right=0, bottom=0)
     page.padding = ft.Padding(0, 45, 0, 0)
 
     conversation_history = [
         {"role": "system", "content": SYSTEM_PROMPT}
     ]
 
-    # تدرج ألوان فاتح وناعم جداً كاشف للنصوص
     cat_gradient = ft.LinearGradient(
         begin=ft.Alignment(-1.0, -1.0),
         end=ft.Alignment(1.0, 1.0),
@@ -125,11 +123,11 @@ async def main(page: ft.Page):
     )
 
     bottom_glow = ft.Container(
-        height=130,
+        height=110,
         expand=True,
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0, 1.0),
-            radius=0.95,
+            center=ft.Alignment(0, 1.2),
+            radius=1.8,
             colors=[
                 ft.Colors.PURPLE_100,
                 ft.Colors.PINK_50,
@@ -148,7 +146,7 @@ async def main(page: ft.Page):
             bottom_glow,
             ft.Container(
                 content=input_controls_row,
-                padding=ft.Padding(15, 0, 15, 12),
+                padding=ft.Padding(15, 0, 15, 4),
                 alignment=ft.Alignment(0, 1.0)
             )
         ],
@@ -182,8 +180,9 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
+    # تخصيص ألوان الفقاعات: رمادي للمستخدم ووردي فاتح ولطيف لـ Fluffy
     def create_message_bubble(text, is_user=True):
-        bubble_bg = ft.Colors.PURPLE_200 if is_user else ft.Colors.PURPLE_50
+        bubble_bg = ft.Colors.GREY_100 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         
         border_rad = ft.BorderRadius(
@@ -205,12 +204,16 @@ async def main(page: ft.Page):
 
         return ft.Row(
             controls=[
-                ft.Container(
-                    content=text_widget,
-                    bgcolor=bubble_bg,
-                    padding=ft.Padding(14, 10, 14, 10),
-                    border_radius=border_rad,
-                    width=280,
+                ft.Row(
+                    [
+                        ft.Container(
+                            content=text_widget,
+                            bgcolor=bubble_bg,
+                            padding=ft.Padding(12, 8, 12, 8),
+                            border_radius=border_rad,
+                        )
+                    ],
+                    tight=True
                 )
             ],
             alignment=alignment
@@ -224,7 +227,7 @@ async def main(page: ft.Page):
                         ft.ProgressRing(width=16, height=16, stroke_width=2, color=ft.Colors.PINK_300),
                         ft.Text(" Fluffy يكتب الآن...", size=13, color=ft.Colors.GREY_700)
                     ], tight=True),
-                    bgcolor=ft.Colors.PURPLE_50,
+                    bgcolor=ft.Colors.PINK_50,
                     padding=10,
                     border_radius=ft.BorderRadius(18, 18, 18, 4),
                 )
@@ -257,7 +260,7 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                models_to_try = ["llama-3.1-8b-instant", "llama3-8b-8192"]
+                models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
                 for model_name in models_to_try:
                     try:
                         return client.chat.completions.create(
