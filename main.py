@@ -33,12 +33,10 @@ def get_available_text_model():
         models_list = client.models.list()
         for m in models_list.data:
             model_id = m.id.lower()
-            # استبعاد نماذج الصوت والتصوير وتحديد أول نموذج كتابة/محادثة
             if "whisper" not in model_id and "vision" not in model_id and "safetensors" not in model_id:
                 return m.id
     except Exception:
         pass
-    # نموذج احتياطي أخير في حال تعذر جلب القائمة
     return "llama-3.3-70b-versatile"
 
 async def main(page: ft.Page):
@@ -183,7 +181,7 @@ async def main(page: ft.Page):
     input_row.visible = True
     page.update()
 
-    # التعديل هنا: إضافة max_width=280 لمنع الامتداد الأفقي وجعل الأسطر تلتف تلقائياً
+    # تعديل دالة الفقاعة: استبدال max_width بـ BoxConstraints الصحيحة في Flet
     def create_message_bubble(text, is_user=True):
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -212,7 +210,7 @@ async def main(page: ft.Page):
                     bgcolor=bubble_bg,
                     padding=ft.Padding(12, 8, 12, 8),
                     border_radius=border_rad,
-                    max_width=280,
+                    constraints=ft.BoxConstraints(max_width=280),
                 )
             ],
             alignment=alignment
@@ -259,7 +257,6 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                # جلب أول نموذج متاح ديناميكياً من خوادم Groq
                 chosen_model = get_available_text_model()
                 return client.chat.completions.create(
                     messages=conversation_history,
