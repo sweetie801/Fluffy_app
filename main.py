@@ -3,7 +3,8 @@ from groq import Groq
 import asyncio
 import re
 
-GROQ_API_KEY = "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"
+# المفتاح الجديد
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
@@ -30,6 +31,7 @@ def clean_text_for_display(text: str) -> str:
 async def main(page: ft.Page):
     page.title = "Fluffy Chat 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
+    page.bgcolor = ft.Colors.WHITE
     page.padding = 15
     page.alignment = ft.MainAxisAlignment.CENTER
 
@@ -123,7 +125,29 @@ async def main(page: ft.Page):
         icon_color=ft.Colors.PINK_300,
     )
 
-    input_row = ft.Row([user_input, send_button], visible=False, vertical_alignment=ft.CrossAxisAlignment.END)
+    bottom_glow = ft.Container(
+        height=180,
+        gradient=ft.RadialGradient(
+            center=ft.Alignment(0, 1.0),
+            radius=1.3,
+            colors=[
+                ft.Colors.PURPLE_100,
+                ft.Colors.PINK_50,
+                ft.Colors.TRANSPARENT
+            ]
+        )
+    )
+
+    input_controls_row = ft.Row([user_input, send_button], vertical_alignment=ft.CrossAxisAlignment.END)
+
+    input_row = ft.Stack(
+        controls=[
+            bottom_glow,
+            ft.Container(content=input_controls_row, padding=ft.Padding(0, 20, 0, 0))
+        ],
+        visible=False
+    )
+
     chat_area = ft.Column(controls=[center_container], expand=True)
 
     page.add(
@@ -220,7 +244,6 @@ async def main(page: ft.Page):
         try:
             loop = asyncio.get_running_loop()
             
-            # تم التحديث للنموذج الأسرع والأضمن استجابة
             response = await loop.run_in_executor(
                 None,
                 lambda: client.chat.completions.create(
