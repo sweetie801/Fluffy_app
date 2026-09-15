@@ -64,12 +64,13 @@ async def main(page: ft.Page):
         height=300
     )
 
+    # تبدأ الأيقونة كبيرة وتتقلص تدريجياً
     animated_icon_container = ft.Container(
         content=app_image,
         width=300,
         height=300,
         alignment=ft.Alignment(0, 0),
-        animate=ft.Animation(1500, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
+        animate=ft.Animation(1200, ft.AnimationCurve.EASE_IN_OUT_CUBIC)
     )
 
     welcome_text = ft.ShaderMask(
@@ -82,13 +83,13 @@ async def main(page: ft.Page):
             text_align=ft.TextAlign.CENTER,
         ),
         opacity=0,
-        animate_opacity=ft.Animation(1000, "easeIn")
+        animate_opacity=ft.Animation(800, "easeIn")
     )
 
     welcome_content = ft.Column(
         controls=[
             animated_icon_container,
-            ft.Container(height=10),
+            ft.Container(height=4), # مسافة متناسقة وقريبة بين الصورة والجملة
             welcome_text,
         ],
         horizontal_alignment=ft.CrossAxisAlignment.CENTER,
@@ -123,7 +124,7 @@ async def main(page: ft.Page):
     )
 
     bottom_glow = ft.Container(
-        height=110,
+        height=120,
         expand=True,
         gradient=ft.RadialGradient(
             center=ft.Alignment(0, 1.2),
@@ -141,12 +142,13 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
+    # وضع شريط الإرسال أعلى بقليل من الأرض دون ملامستها
     input_row = ft.Stack(
         controls=[
             bottom_glow,
             ft.Container(
                 content=input_controls_row,
-                padding=ft.Padding(15, 0, 15, 4),
+                padding=ft.Padding(15, 0, 15, 12),
                 alignment=ft.Alignment(0, 1.0)
             )
         ],
@@ -167,22 +169,23 @@ async def main(page: ft.Page):
 
     page.update()
 
-    await asyncio.sleep(1.2)
+    # مرحلة تقلص الأيقونة وتمركزها في الوسط
+    await asyncio.sleep(0.8)
     animated_icon_container.width = 160
     animated_icon_container.height = 160
     app_image.width = 160
     app_image.height = 160
     page.update()
 
-    await asyncio.sleep(1.2)
+    await asyncio.sleep(0.8)
     welcome_text.opacity = 1
     header.visible = True
     input_row.visible = True
     page.update()
 
-    # تخصيص ألوان الفقاعات: رمادي للمستخدم ووردي فاتح ولطيف لـ Fluffy
+    # فقاعتكِ: بنفسجي فاتح جداً مائل للرمادي | فقاعته: وردي فاتح
     def create_message_bubble(text, is_user=True):
-        bubble_bg = ft.Colors.GREY_100 if is_user else ft.Colors.PINK_50
+        bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         
         border_rad = ft.BorderRadius(
@@ -260,16 +263,30 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                models_to_try = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"]
+                # جلب النماذج الفعالة ديناميكياً لتفادي أي خطأ اتصل
+                try:
+                    available = [m.id for m in client.models.list().data if "llama" in m.id or "mixtral" in m.id]
+                except Exception:
+                    available = []
+                
+                models_to_try = available + [
+                    "llama-3.3-70b-versatile",
+                    "llama-3.1-8b-instant",
+                    "mixtral-8x7b-32768"
+                ]
+                
+                # تجربة النماذج المتاحة بالتتابع
+                last_error = None
                 for model_name in models_to_try:
                     try:
                         return client.chat.completions.create(
                             messages=conversation_history,
                             model=model_name,
                         )
-                    except Exception:
+                    except Exception as ex:
+                        last_error = ex
                         continue
-                raise Exception("تعذر الاتصال بالنماذج المتاحة حالياً.")
+                raise last_error or Exception("تعذر الوصول لنموذج ذكاء اصطناعي نشط.")
 
             response = await loop.run_in_executor(None, call_groq)
             raw_reply = response.choices[0].message.content
