@@ -149,7 +149,6 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج المحدث بمتناسق مع القطة وتوسع متوازن للأعلى
     input_row = ft.Container(
         content=input_controls_row,
         padding=ft.Padding(15, 65, 15, 25),
@@ -275,7 +274,7 @@ async def main(page: ft.Page):
             def call_groq():
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.3-70b-versatile",
+                    model="llama-3.1-8b-instant",
                     temperature=0.3,
                 )
 
@@ -286,6 +285,7 @@ async def main(page: ft.Page):
             conversation_history.append({"role": "assistant", "content": fluffy_reply})
             
         except Exception as err:
+            print(f"Groq API Error: {err}")
             fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة."
         
         finally:
