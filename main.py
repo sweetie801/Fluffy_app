@@ -9,7 +9,6 @@ client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
-# قائمة العبارات الترحيبية المعدلة والمحدثة
 WELCOME_MESSAGES = [
     "أهلاً بنجمتي 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "أهلاً بمكانكِ المفضل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
@@ -93,7 +92,6 @@ async def main(page: ft.Page):
         animate=ft.Animation(1400, ft.AnimationCurve.EASE_IN_OUT)
     )
 
-    # اختيار عبارة عشوائية عند فتح التطبيق
     selected_welcome_message = random.choice(WELCOME_MESSAGES)
 
     welcome_text = ft.ShaderMask(
@@ -151,16 +149,17 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
+    # التدرج المحدث بمتناسق مع القطة وتوسع متوازن للأعلى
     input_row = ft.Container(
         content=input_controls_row,
-        padding=ft.Padding(15, 35, 15, 25),
+        padding=ft.Padding(15, 65, 15, 25),
         gradient=ft.LinearGradient(
             begin=ft.Alignment(0.0, -1.0),
             end=ft.Alignment(0.0, 1.0),
             colors=[
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
-                ft.Colors.PINK_50,
-                ft.Colors.PURPLE_100,
+                ft.Colors.with_opacity(0.25, ft.Colors.PINK_300),
+                ft.Colors.with_opacity(0.40, ft.Colors.PURPLE_200),
             ]
         ),
         visible=False
