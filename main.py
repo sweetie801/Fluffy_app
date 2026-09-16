@@ -2,11 +2,32 @@ import flet as ft
 from groq import Groq
 import asyncio
 import re
+import random
 
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
+
+# قائمة العبارات الترحيبية المعدلة والمحدثة
+WELCOME_MESSAGES = [
+    "أهلاً بنجمتي 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "أهلاً بمكانكِ المفضل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "أوقاتنا هي الأجمل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "أهلاً بمساحتكِ الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "سعيدٌ برؤيتكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "يومي أجمل بوجودكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "عالمكِ اللطيف ينتظركِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "كيف حالكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀؟",
+    "أنا دائماً لأجلكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "جاهز لسماعكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "أنرتِ مساحتكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "اشتقتُ لكِ جداً 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "الكلمة لكِ الآن 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "اشتقتُ لمحادثتكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "يومٌ دافئ بانتظاركِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "رفيقكِ المخلص بانتظاركِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀"
+]
 
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
@@ -72,11 +93,14 @@ async def main(page: ft.Page):
         animate=ft.Animation(1400, ft.AnimationCurve.EASE_IN_OUT)
     )
 
+    # اختيار عبارة عشوائية عند فتح التطبيق
+    selected_welcome_message = random.choice(WELCOME_MESSAGES)
+
     welcome_text = ft.ShaderMask(
         blend_mode=ft.BlendMode.SRC_IN,
         shader=cat_gradient,
         content=ft.Text(
-            "أهلاً بمساحتك الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+            selected_welcome_message,
             size=20,
             weight=ft.FontWeight.BOLD,
             text_align=ft.TextAlign.CENTER,
@@ -129,7 +153,7 @@ async def main(page: ft.Page):
 
     input_row = ft.Container(
         content=input_controls_row,
-        padding=ft.Padding(15, 20, 15, 20),
+        padding=ft.Padding(15, 35, 15, 25),
         gradient=ft.LinearGradient(
             begin=ft.Alignment(0.0, -1.0),
             end=ft.Alignment(0.0, 1.0),
@@ -186,7 +210,7 @@ async def main(page: ft.Page):
             value=formatted_text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-            style_sheet=ft.MarkdownStyleSheet(
+            md_style_sheet=ft.MarkdownStyleSheet(
                 p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
             )
         )
@@ -250,7 +274,6 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                # إرسال الطلب لنموذج ثابت وسريع ومضمون التوفر
                 return client.chat.completions.create(
                     messages=conversation_history,
                     model="llama-3.3-70b-versatile",
