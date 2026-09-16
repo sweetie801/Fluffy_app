@@ -3,6 +3,7 @@ from groq import Groq
 import asyncio
 import re
 import random
+import html
 
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
@@ -28,26 +29,93 @@ WELCOME_MESSAGES = [
     "رفيقكِ المخلص بانتظاركِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀"
 ]
 
-# تم تعديل البرومبت لمنع رموز LaTeX الرياضية نهائياً من المصدر
+# دمج قواعد عدم الهلوسة المنطقية مع الشخصية في الـ System Prompt
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
 اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie (وتناديلها وتكتب اسمُها دائماً بهذه الزخرفة: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀) هي من صممتك وبرمجتك وطورتك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
 
-قواعد الشخصية والتفاعل:
+[قواعد التشغيل الأساسية لمنع الهلوسة]
+- أنت مساعد ذكي، دقيق، وصارم منطقياً. مهمتك الأولى هي الحفاظ على الحقيقة العلمية والواقعية، والاعتراف بالخطأ أو التناقض فوراً دون مواربة.
+
+[بروتوكول تفكيك المسائل وحل المشكلات]
+عند استقبال أي سؤال (منطقي، برمجي، فيزيائي، أو لغز معقد)، يُحظر عليك إعطاء نتيجة فورية أو التخمين بناءً على الحلول الشائعة. يجب أن تتبع الخوارزمية التالية داخلياً:
+1. التفكيك العكسي: ابدأ بتحليل الجملة من نهايتها إلى بدايتها، وفكك الضمائر المتصلة (مثل: ابني، أخي) وأرجعها إلى صاحبها الأصلي بوضوح.
+2. المحاكاة الصامتة (Self-Correction): بعد صياغة الحل في عقلك وقبل كتابته، اختبر النتيجة وعوض بها في السؤال الأصلي. إذا أدت النتيجة إلى أي تناقض جيني، عائلي، أو علمي، فاعلم أن تحليلك خاطئ.
+3. التواضع المعرفي: يُمنع منعاً باتاً اختراع مقدمات عشوائية أو استخدام رموز (أ، ب، س) لتبرير نتيجة خاطئة. إذا وجدت اللغز ناقصاً أو متناقضاً، قل مباشرة: "هذا النص يحتوي على تناقض منطقي للأسباب التالية..." بدلاً من هندسة إجابة وهمية.
+
+[أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
-2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي. ومع ذلك، تملك الطلاقة الكاملة بالتحدث بكل لغات العالم؛ إذا تحدثت معك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحول فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
-3. الدعم والتوجيه والذاكرة: عاملها دائماً بتقدير، وقدم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، واهتم بكل تفاصيل حياتها التي تشاركها معك وتذكر كل ما دار بينكما في المحادثة.
-4. تقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
-5. الدقة والوضوح: قدم إجابات منظمة، منطقية، وواضحة جداً بعيداً عن الجمل الختامية المكررة أو الحشو.
-6. ألغاز القرابة: إذا واجهت لغزاً يتعلق بعلاقات القرابة المعقدة، فككه بهدوء وبأقل قدر من الرموز، وإذا وجدت تناقضاً اذكر ذلك مباشرة دون اختراع مقدمات عشوائية.
-7. كتابة المعادلات الرياضية: لا تستخدم صيغ LaTeX أو الرموز البرمجية المعقدة (مثل \\sqrt أو \\frac أو \\boxed أو \\left). اكتب المعادلة دائماً بكلمات نصوص واضحة ورموز رياضية بسيطة ومباشرة (مثل: √, π, /, ^2, *).
+2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي. ومع ذلك، تملك الطلاقة الكاملة بالتحدث بكل لغات العالم إذا طُلِب منك ذلك.
+3. التنسيق بـ LaTeX: استخدم صيغ LaTeX القياسية محاطة بإشارات الدولار $$...$$ للمعادلات المستقلة و $...$ داخل السطر للرياضيات والفيزياء، واستخدم \\boxed{...} للنتيجة النهائية.
+4. اكتب بخطوات واضحة ومباشرة دون حشو. وأنهِ النص دائماً بعبارة ختامية رشيقة وذكية لمرة واحدة فقط، ويُمنع تكرار الوعود أو العبارات الختامية بأشكال مختلفة في نفس الرد.
 """
+
+def generate_math_html(text: str, is_user: bool = False) -> str:
+    escaped_text = html.escape(text).replace("\n", "<br>")
+    bg_color = "#f3e8ff" if is_user else "#fce7f3"
+    text_color = "#111827"
+    
+    html_code = f"""
+    <!DOCTYPE html>
+    <html dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+        MathJax = {{
+          tex: {{
+            inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+            displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
+            processEscapes: true
+          }},
+          options: {{
+            ignoreHtmlClass: 'tex2jax_ignore',
+            processHtmlClass: 'tex2jax_process'
+          }}
+        }};
+        </script>
+        <script type="text/javascript" id="MathJax-script" async
+          src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+        </script>
+        <style>
+            body {{
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                background-color: transparent;
+                margin: 0;
+                padding: 4px;
+                color: {text_color};
+                font-size: 15px;
+                line-height: 1.6;
+            }}
+            .bubble {{
+                background-color: {bg_color};
+                padding: 12px 16px;
+                border-radius: 18px;
+                display: inline-block;
+                max-width: 100%;
+                box-sizing: border-box;
+                word-wrap: break-word;
+            }}
+            mjx-container {{
+                font-size: 115% !important;
+                margin: 0.5em 0 !important;
+            }}
+        </style>
+    </head>
+    <body class="tex2jax_process">
+        <div class="bubble">
+            {escaped_text}
+        </div>
+    </body>
+    </html>
+    """
+    return html_code
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
     page.bgcolor = ft.Colors.WHITE
-    page.padding = ft.Padding(0, 35, 0, 0)
+    page.padding = 0
 
     conversation_history = [
         {"role": "system", "content": SYSTEM_PROMPT}
@@ -147,43 +215,53 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # الهندسة الصحيحة للتدرج اللوني أسفل الشاشة تماماً كما في الصورة:
-    # هالة شعاعية ناعمة بمركز سفلي متسع تدريجياً
-    bottom_gradient_bg = ft.Container(
-        gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.0),
-            radius=1.3,
-            colors=[
-                ft.Colors.with_opacity(0.40, ft.Colors.PINK_200),
-                ft.Colors.with_opacity(0.15, ft.Colors.PURPLE_100),
-                ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
-            ],
-            stops=[0.0, 0.45, 1.0]
-        ),
-        padding=ft.Padding(16, 25, 16, 15), # مساحة تضمن نزول زر الإرسال للأسفل مع إعطاء خلفية ناعمة للتدرج
-    )
-
     input_container = ft.Container(
         content=input_controls_row,
+        padding=ft.Padding(16, 10, 16, 20)
     )
 
-    bottom_gradient_bg.content = input_container
-
     bottom_area = ft.Container(
-        content=bottom_gradient_bg,
+        content=input_container,
         visible=False
     )
 
     chat_area = ft.Container(
         content=ft.Column(controls=[center_container], expand=True),
-        padding=ft.Padding(15, 0, 15, 0),
+        padding=ft.Padding(10, 0, 10, 0),
+        expand=True
+    )
+
+    background_gradient = ft.Container(
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment(0.0, 1.0),
+            end=ft.Alignment(0.0, -0.2),
+            colors=[
+                ft.Colors.PINK_100,
+                ft.Colors.PURPLE_50,
+                ft.Colors.WHITE,
+            ],
+            stops=[0.0, 0.25, 0.65]
+        ),
+        expand=True
+    )
+
+    main_layout = ft.Column(
+        [
+            ft.Container(content=header, padding=ft.Padding(0, 35, 0, 0)),
+            chat_area,
+            bottom_area
+        ],
         expand=True
     )
 
     page.add(
-        header,
-        chat_area,
-        bottom_area
+        ft.Stack(
+            [
+                background_gradient,
+                main_layout
+            ],
+            expand=True
+        )
     )
 
     page.update()
@@ -202,41 +280,50 @@ async def main(page: ft.Page):
     page.update()
 
     def create_message_bubble(text, is_user=True):
-        bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         
-        border_rad = ft.BorderRadius(
-            top_left=18,
-            top_right=18,
-            bottom_left=18 if is_user else 4,
-            bottom_right=4 if is_user else 18
-        )
-
-        text_widget = ft.Markdown(
-            value=text,
-            selectable=True,
-            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-            md_style_sheet=ft.MarkdownStyleSheet(
-                p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+        contains_math = any(symbol in text for symbol in ["$", "\\frac", "\\sqrt", "\\boxed", "\\pi"])
+        
+        if contains_math:
+            html_content = generate_math_html(text, is_user=is_user)
+            estimated_height = max(80, min(500, len(text) * 2 + text.count('\\frac') * 40 + text.count('\n') * 20))
+            
+            content_widget = ft.WebView(
+                html_content,
+                height=estimated_height,
+                expand=True
             )
-        )
-
-        is_long = len(text) > 35 or "\n" in text
+        else:
+            bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
+            border_rad = ft.BorderRadius(
+                top_left=18,
+                top_right=18,
+                bottom_left=18 if is_user else 4,
+                bottom_right=4 if is_user else 18
+            )
+            text_widget = ft.Markdown(
+                value=text,
+                selectable=True,
+                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                md_style_sheet=ft.MarkdownStyleSheet(
+                    p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+                )
+            )
+            is_long = len(text) > 35 or "\n" in text
+            content_widget = ft.Container(
+                content=ft.Column(
+                    [text_widget],
+                    tight=True,
+                    width=260 if is_long else None,
+                    rtl=True
+                ),
+                bgcolor=bubble_bg,
+                padding=ft.Padding(12, 8, 12, 8),
+                border_radius=border_rad,
+            )
 
         return ft.Row(
-            controls=[
-                ft.Container(
-                    content=ft.Column(
-                        [text_widget],
-                        tight=True,
-                        width=260 if is_long else None,
-                        rtl=True
-                    ),
-                    bgcolor=bubble_bg,
-                    padding=ft.Padding(12, 8, 12, 8),
-                    border_radius=border_rad,
-                )
-            ],
+            controls=[content_widget],
             alignment=alignment
         )
 
@@ -246,7 +333,7 @@ async def main(page: ft.Page):
                 ft.Container(
                     content=ft.Row([
                         ft.ProgressRing(width=16, height=16, stroke_width=2, color=ft.Colors.PINK_300),
-                        ft.Text(" Fluffy يكتب الآن...", size=13, color=ft.Colors.GREY_700)
+                        ft.Text(" Fluffy يفكر ويحلل بالمنطق...", size=13, color=ft.Colors.GREY_700)
                     ], tight=True),
                     bgcolor=ft.Colors.PINK_50,
                     padding=10,
@@ -281,10 +368,12 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
+                # خفض الحرارة والعشوائية للقضاء على الهلوسة بناءً على الصورة
                 return client.chat.completions.create(
                     messages=conversation_history,
                     model="groq/compound-mini",
-                    temperature=0.3,
+                    temperature=0.0,
+                    top_p=0.1,
                 )
 
             response = await loop.run_in_executor(None, call_groq)
