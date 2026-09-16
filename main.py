@@ -150,17 +150,16 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج الشعاعي المضيء والمدموج (كبير وأوسع بنفس شكل الصورة الثانية)
+    # التدرج الدائري المتوهج والمدموج بنعومة وبدون أشكال حادة
     input_row = ft.Container(
         content=input_controls_row,
-        padding=ft.Padding(20, 40, 20, 30),
-        border_radius=0,
+        padding=ft.Padding(20, 25, 20, 25),
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.2),
-            radius=2.8,
+            center=ft.Alignment(0.0, 1.0),
+            radius=1.8,
             colors=[
-                ft.Colors.with_opacity(0.45, ft.Colors.PINK_200),
-                ft.Colors.with_opacity(0.20, ft.Colors.PURPLE_100),
+                ft.Colors.with_opacity(0.35, ft.Colors.PINK_200),
+                ft.Colors.with_opacity(0.12, ft.Colors.PINK_100),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ]
         ),
@@ -275,10 +274,10 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                # استخدام النموذج المجاني والمدعوم حالياً بشكل كامل لجميع مفاتيح Groq
+                # تم تغيير اسم النموذج إلى النموذج المتاح مجاناً للجميع بدون استثناء
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.1-8b-instant",
+                    model="groq/compound-mini",
                     temperature=0.3,
                 )
 
