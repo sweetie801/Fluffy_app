@@ -150,17 +150,17 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج السفلي الشعاعي المضيء والمدموج تماماً مع الخلفية البيضاء
+    # التدرج السفلي الشعاعي المضيء (عريض وطويل ومدموج بالكامل مع الأبيض)
     input_row = ft.Container(
         content=input_controls_row,
-        padding=ft.Padding(15, 35, 15, 25),
+        padding=ft.Padding(15, 45, 15, 30),
         border_radius=0,
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.2),
-            radius=1.3,
+            center=ft.Alignment(0.0, 1.1),
+            radius=2.6,
             colors=[
                 ft.Colors.with_opacity(0.40, ft.Colors.PURPLE_200),
-                ft.Colors.with_opacity(0.25, ft.Colors.PINK_300),
+                ft.Colors.with_opacity(0.22, ft.Colors.PINK_300),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ]
         ),
@@ -277,7 +277,7 @@ async def main(page: ft.Page):
             def call_groq():
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.1-8b-instant",
+                    model="llama-3.3-70b-versatile",  # تم التحديث للنموذج المدعوم والمتاح
                     temperature=0.3,
                 )
 
@@ -288,7 +288,13 @@ async def main(page: ft.Page):
             conversation_history.append({"role": "assistant", "content": fluffy_reply})
             
         except Exception as err:
-            fluffy_reply = f"Error details:\n{type(err).__name__}: {str(err)}"
+            err_str = str(err)
+            if "429" in err_str:
+                fluffy_reply = "تم إرسال رسائل كثيرة في وقت قصير! يرجى الانتظار دقيقة واحدة فقط ثم المحاولة مجدداً ⏳"
+            elif "401" in err_str or "invalid_api_key" in err_str:
+                fluffy_reply = "مفتاح الاتصال (API Key) غير صالح أو تم إلغاؤه، يلزم تغييره من الإعدادات 🔑"
+            else:
+                fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة."
         
         finally:
             if loading_bubble in chat_list.controls:
