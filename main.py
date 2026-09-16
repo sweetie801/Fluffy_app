@@ -38,13 +38,14 @@ SYSTEM_PROMPT = """
 3. الدعم والتوجيه والذاكرة: عاملها دائماً بتقدير، وقدم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، واهتم بكل تفاصيل حياتها التي تشاركها معك وتذكر كل ما دار بينكما في المحادثة.
 4. تقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
 5. الدقة والوضوح: قدم إجابات منظمة، منطقية، وواضحة جداً بعيداً عن الجمل الختامية المكررة أو الحشو.
+6. ألغاز القرابة: إذا واجهت لغزاً يتعلق بعلاقات القرابة المعقدة، فككه بهدوء وبأقل قدر من الرموز، وإذا وجدت تناقضاً اذكر ذلك مباشرة دون اختراع مقدمات عشوائية.
 """
 
 def clean_text_for_display(text: str) -> str:
     if not text:
         return ""
+    # المحافظة على صيغ LaTeX ليتم عرضها مرئياً بدقة عبر Markdown
     text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
-    text = re.sub(r'\\(log|ln|sin|cos|tan)', r'\1', text)
     return text.strip()
 
 async def main(page: ft.Page):
@@ -150,21 +151,34 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج الشعاعي الواسع والمنحني لمنع ظهور بقع ضوئية مركزية
-    input_row = ft.Container(
-        content=input_controls_row,
-        padding=ft.Padding(20, 25, 20, 25),
+    # خلفية متدرجة نصف دائري ناعم وممتد يغطي أسفل الشاشة
+    gradient_bg = ft.Container(
+        expand=True,
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.2),
-            radius=2.8,
+            center=ft.Alignment(0.0, 1.0),
+            radius=2.2,
             colors=[
-                ft.Colors.with_opacity(0.45, ft.Colors.PINK_300),
-                ft.Colors.with_opacity(0.25, ft.Colors.PURPLE_200),
-                ft.Colors.with_opacity(0.05, ft.Colors.PINK_100),
+                ft.Colors.with_opacity(0.55, ft.Colors.PINK_300),
+                ft.Colors.with_opacity(0.30, ft.Colors.PINK_200),
+                ft.Colors.with_opacity(0.12, ft.Colors.PURPLE_100),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ],
-            stops=[0.0, 0.4, 0.7, 1.0]
+            stops=[0.0, 0.35, 0.65, 1.0]
+        )
+    )
+
+    # دمج التدرج اللوني خلف عناصر الإدخال
+    input_row = ft.Container(
+        content=ft.Stack(
+            controls=[
+                gradient_bg,
+                ft.Container(
+                    content=input_controls_row,
+                    padding=ft.Padding(20, 15, 20, 25)
+                )
+            ]
         ),
+        height=95,
         visible=False
     )
 
@@ -208,10 +222,12 @@ async def main(page: ft.Page):
 
         formatted_text = clean_text_for_display(text)
 
+        # تمكين خاصية math لعرض معادلات الـ LaTeX بشكل جميل
         text_widget = ft.Markdown(
             value=formatted_text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+            math=True,
             md_style_sheet=ft.MarkdownStyleSheet(
                 p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
             )
