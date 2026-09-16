@@ -12,7 +12,7 @@ IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 WELCOME_MESSAGES = [
     "أهلاً بنجمتي 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "أهلاً بمكانكِ المفضل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-    "أوقاتنا هي الأجمل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "أوقاتنا معاً هي الأجمل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "أهلاً بمساحتكِ الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "سعيدٌ برؤيتكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "يومي أجمل بوجودكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
@@ -44,14 +44,14 @@ SYSTEM_PROMPT = """
 [أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
 2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي.
-3. عند تقديم صيغ أو معادلات رياضية، اكتبها بشكل نصوص واضحة ومباشرة دون استخدام رموز LaTeX المعقدة مثل \\boxed أو \\vec.
+3. التنسيق الرياضي الصارم: يمنع منعاً باتاً استخدام أكواد LaTeX مثل \\frac أو \\boxed أو \\vec أو \\text أو أي رموز تبدأ بـ \\. بدلاً من ذلك، اكتب القوانين بكلمات ورموز حسابية عادية وواضحة جداً (مثال: "العائد = (القيمة النهائية - القيمة الابتدائية) ÷ القيمة الابتدائية").
 4. اكتب بخطوات واضحة ومباشرة دون حشو. وأنهِ النص دائماً بعبارة ختامية رشيقة وذكية لمرة واحدة فقط.
 """
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
-    page.bgcolor = ft.Colors.WHITE
+    page.bgcolor = ft.Colors.TRANSPARENT
     page.padding = 0
 
     conversation_history = [
@@ -73,7 +73,7 @@ async def main(page: ft.Page):
     header = ft.Column([
         ft.Row([header_text], alignment=ft.MainAxisAlignment.CENTER),
         ft.Container(height=6),
-        ft.Divider(height=1)
+        ft.Divider(height=1, color=ft.Colors.PINK_100)
     ], visible=False)
 
     chat_list = ft.Column(scroll=ft.ScrollMode.AUTO, expand=True, spacing=12)
@@ -168,18 +168,19 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج الشعاعي القوسي الفاتح والملموم
+    # التدرج الشعاعي القوسي الفاتح والمميز
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.35),
-            radius=0.85,
+            center=ft.Alignment(0.0, 1.25),
+            radius=1.1,
             colors=[
+                ft.Colors.PINK_200,
                 ft.Colors.PINK_100,
-                ft.Colors.PINK_50,
+                ft.Colors.PURPLE_100,
                 ft.Colors.PURPLE_50,
                 ft.Colors.WHITE,
             ],
-            stops=[0.0, 0.25, 0.50, 0.85]
+            stops=[0.0, 0.25, 0.50, 0.75, 1.0]
         ),
         expand=True
     )
@@ -219,6 +220,8 @@ async def main(page: ft.Page):
     page.update()
 
     def clean_latex(text: str) -> str:
+        # إزالة وتنظيف صيغ LaTeX المشوهة نهائياً
+        text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 ÷ \2)', text)
         text = re.sub(r'\\boxed\{([^}]+)\}', r'**[\1]**', text)
         text = re.sub(r'\\vec\{([^}]+)\}', r'\1⃗', text)
         text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
@@ -226,6 +229,7 @@ async def main(page: ft.Page):
         text = text.replace(r'\cdot', '·')
         text = text.replace('$', '')
         text = text.replace('\\[', '').replace('\\]', '')
+        text = text.replace('\\', '')
         return text
 
     def create_message_bubble(text, is_user=True):
