@@ -150,23 +150,18 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج السفلي القوسي/الدائري المضيء والمدموج تماماً مع الخلفية
+    # التدرج الشعاعي المضيء والمدموج (كبير وأوسع بنفس شكل الصورة الثانية)
     input_row = ft.Container(
         content=input_controls_row,
-        padding=ft.Padding(20, 35, 20, 25),
-        border_radius=ft.BorderRadius(
-            top_left=160,
-            top_right=160,
-            bottom_left=0,
-            bottom_right=0
-        ),
-        gradient=ft.LinearGradient(
-            begin=ft.Alignment.TOP_CENTER,
-            end=ft.Alignment.BOTTOM_CENTER,
+        padding=ft.Padding(20, 40, 20, 30),
+        border_radius=0,
+        gradient=ft.RadialGradient(
+            center=ft.Alignment(0.0, 1.2),
+            radius=2.8,
             colors=[
+                ft.Colors.with_opacity(0.45, ft.Colors.PINK_200),
+                ft.Colors.with_opacity(0.20, ft.Colors.PURPLE_100),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
-                ft.Colors.with_opacity(0.25, ft.Colors.PINK_200),
-                ft.Colors.with_opacity(0.45, ft.Colors.PURPLE_200),
             ]
         ),
         visible=False
@@ -280,9 +275,10 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
+                # استخدام النموذج المجاني والمدعوم حالياً بشكل كامل لجميع مفاتيح Groq
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.3-70b-versatile",
+                    model="llama-3.1-8b-instant",
                     temperature=0.3,
                 )
 
@@ -293,8 +289,11 @@ async def main(page: ft.Page):
             conversation_history.append({"role": "assistant", "content": fluffy_reply})
             
         except Exception as err:
-            # يطبع تفاصيل الخطأ الصريحة في حال وجود أي مشكلة في الاتصال
-            fluffy_reply = f"Error details:\n{type(err).__name__}: {str(err)}"
+            err_str = str(err)
+            if "429" in err_str:
+                fluffy_reply = "تم إرسال رسائل كثيرة في وقت قصير! يرجى الانتظار دقيقة واحدة فقط ثم المحاولة مجدداً ⏳"
+            else:
+                fluffy_reply = f"حدث خطأ في الاتصال:\n{err_str}"
         
         finally:
             if loading_bubble in chat_list.controls:
