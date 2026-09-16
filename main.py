@@ -44,8 +44,10 @@ SYSTEM_PROMPT = """
 def clean_text_for_display(text: str) -> str:
     if not text:
         return ""
-    # المحافظة على صيغ LaTeX ليتم عرضها مرئياً بدقة عبر Markdown
+    text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
     text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
+    text = re.sub(r'\\(rho|pi|alpha|beta|gamma|delta|theta)', r'\1', text)
+    text = text.replace('$', '')
     return text.strip()
 
 async def main(page: ft.Page):
@@ -132,18 +134,19 @@ async def main(page: ft.Page):
         multiline=True,
         min_lines=1,
         max_lines=4,
-        border_radius=20,
+        border_radius=25,
         border_color=ft.Colors.PURPLE_200,
-        focused_border_color=ft.Colors.PINK_200,
+        focused_border_color=ft.Colors.PINK_300,
         cursor_color=ft.Colors.PINK_300,
         selection_color=ft.Colors.PINK_100,
-        content_padding=12,
+        content_padding=ft.Padding(16, 12, 16, 12),
         bgcolor=ft.Colors.WHITE,
     )
 
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
         icon_color=ft.Colors.PINK_300,
+        icon_size=26,
     )
 
     input_controls_row = ft.Row(
@@ -151,34 +154,34 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # خلفية متدرجة نصف دائري ناعم وممتد يغطي أسفل الشاشة
-    gradient_bg = ft.Container(
+    # التدرج اللوني الناعم والهادئ كما في الصورة الأصلية
+    soft_gradient_bg = ft.Container(
         expand=True,
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.0),
-            radius=2.2,
+            center=ft.Alignment(0.0, 1.2),
+            radius=1.8,
             colors=[
-                ft.Colors.with_opacity(0.55, ft.Colors.PINK_300),
-                ft.Colors.with_opacity(0.30, ft.Colors.PINK_200),
-                ft.Colors.with_opacity(0.12, ft.Colors.PURPLE_100),
+                ft.Colors.with_opacity(0.35, ft.Colors.PINK_200),
+                ft.Colors.with_opacity(0.15, ft.Colors.PURPLE_100),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ],
-            stops=[0.0, 0.35, 0.65, 1.0]
+            stops=[0.0, 0.5, 1.0]
         )
     )
 
-    # دمج التدرج اللوني خلف عناصر الإدخال
+    # وضع حقل الإدخال وزر الإرسال أسفل التدرج الناعم مع إنزالهما للأسفل
     input_row = ft.Container(
         content=ft.Stack(
             controls=[
-                gradient_bg,
+                soft_gradient_bg,
                 ft.Container(
                     content=input_controls_row,
-                    padding=ft.Padding(20, 15, 20, 25)
+                    padding=ft.Padding(16, 10, 16, 10),
+                    alignment=ft.Alignment(0, 1.0) # محاذاة لأسفل الحاوية
                 )
             ]
         ),
-        height=95,
+        height=120, # ارتفاع الحاوية لإبقاء مساحة التدرج ممتدة دون تقليص
         visible=False
     )
 
@@ -222,12 +225,10 @@ async def main(page: ft.Page):
 
         formatted_text = clean_text_for_display(text)
 
-        # تمكين خاصية math لعرض معادلات الـ LaTeX بشكل جميل
         text_widget = ft.Markdown(
             value=formatted_text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-            math=True,
             md_style_sheet=ft.MarkdownStyleSheet(
                 p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
             )
