@@ -34,7 +34,7 @@ SYSTEM_PROMPT = """
 
 قواعد الشخصية والتفاعل:
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
-2. التحدث باللغات: التزم باللغة العربية الفصح الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي. ومع ذلك، تملك الطلاقة الكاملة بالتحدث بكل لغات العالم؛ إذا تحدثت معك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحول فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
+2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي. ومع ذلك، تملك الطلاقة الكاملة بالتحدث بكل لغات العالم؛ إذا تحدثت معك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بأي لغة أخرى أو طلبت منك التحدث بلغة معينة، تحول فوراً واستجب لها بتلك اللغة بالكامل وبدقة عالية.
 3. الدعم والتوجيه والذاكرة: عاملها دائماً بتقدير، وقدم لها الاستشارات الحكيمة والدعم النفسي والمعرفي، واهتم بكل تفاصيل حياتها التي تشاركها معك وتذكر كل ما دار بينكما في المحادثة.
 4. تقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
 5. الدقة والوضوح: قدم إجابات منظمة، منطقية، وواضحة جداً بعيداً عن الجمل الختامية المكررة أو الحشو.
@@ -43,11 +43,8 @@ SYSTEM_PROMPT = """
 def clean_text_for_display(text: str) -> str:
     if not text:
         return ""
-    # معالجة تنسيق النصوص والرموز المتداخلة لمنع ارتباك الاتجاه وعلامات الترقيم
     text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
     text = re.sub(r'\\(log|ln|sin|cos|tan)', r'\1', text)
-    # إضافة رموز تحكم بالنص العربي والإنجليزية للاتجاه الصحيح LTR / RTL
-    text = text.replace("𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀", "\u202e𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀\u202c")
     return text.strip()
 
 async def main(page: ft.Page):
@@ -153,19 +150,20 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج نصف الدائري لأعلى بألوان القطة المتلاشية
+    # التدرج الشعاعي الواسع والمنحني لمنع ظهور بقع ضوئية مركزية
     input_row = ft.Container(
         content=input_controls_row,
         padding=ft.Padding(20, 25, 20, 25),
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.0),
-            radius=1.3,
+            center=ft.Alignment(0.0, 1.2),
+            radius=2.8,
             colors=[
-                ft.Colors.with_opacity(0.40, ft.Colors.PINK_300),
-                ft.Colors.with_opacity(0.20, ft.Colors.PURPLE_200),
+                ft.Colors.with_opacity(0.45, ft.Colors.PINK_300),
+                ft.Colors.with_opacity(0.25, ft.Colors.PURPLE_200),
+                ft.Colors.with_opacity(0.05, ft.Colors.PINK_100),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ],
-            stops=[0.0, 0.5, 1.0]
+            stops=[0.0, 0.4, 0.7, 1.0]
         ),
         visible=False
     )
@@ -227,7 +225,8 @@ async def main(page: ft.Page):
                     content=ft.Column(
                         [text_widget],
                         tight=True,
-                        width=260 if is_long else None
+                        width=260 if is_long else None,
+                        rtl=True
                     ),
                     bgcolor=bubble_bg,
                     padding=ft.Padding(12, 8, 12, 8),
