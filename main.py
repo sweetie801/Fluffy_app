@@ -4,15 +4,17 @@ import asyncio
 import re
 import random
 
-GROQ_API_KEY = "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"
+# المفتاح الجديد الخاص بكِ
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
+# تعديل الترتيب ليظهر الكلام العربي أولاً ثم Sweetie على اليسار
 WELCOME_MESSAGES = [
     "أهلاً بنجمتي 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "أهلاً بمكانكِ المفضل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
-    "أوقاتنا هي الأجمل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
+    "أوقاتنا معاً هي الأجمل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "أهلاً بمساحتكِ الخاصة 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "سعيدٌ برؤيتكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
     "يومي أجمل بوجودكِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀",
@@ -102,6 +104,7 @@ async def main(page: ft.Page):
             size=20,
             weight=ft.FontWeight.BOLD,
             text_align=ft.TextAlign.CENTER,
+            rtl=True # تفعيل اتجاه النص لضمان ظهور الكلام العربي يميناً و Sweetie يساراً
         ),
         opacity=0,
         animate_opacity=ft.Animation(800, "easeIn")
@@ -149,16 +152,23 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
+    # التدرج السفلي المنحني على شكل نصف دائرة من الأعلى
     input_row = ft.Container(
         content=input_controls_row,
-        padding=ft.Padding(15, 65, 15, 25),
+        padding=ft.Padding(15, 45, 15, 25),
+        border_radius=ft.BorderRadius(
+            top_left=120,
+            top_right=120,
+            bottom_left=0,
+            bottom_right=0
+        ),
         gradient=ft.LinearGradient(
             begin=ft.Alignment(0.0, -1.0),
             end=ft.Alignment(0.0, 1.0),
             colors=[
-                ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
-                ft.Colors.with_opacity(0.25, ft.Colors.PINK_300),
-                ft.Colors.with_opacity(0.40, ft.Colors.PURPLE_200),
+                ft.Colors.with_opacity(0.15, ft.Colors.PINK_200),
+                ft.Colors.with_opacity(0.30, ft.Colors.PINK_300),
+                ft.Colors.with_opacity(0.45, ft.Colors.PURPLE_200),
             ]
         ),
         visible=False
@@ -285,8 +295,13 @@ async def main(page: ft.Page):
             conversation_history.append({"role": "assistant", "content": fluffy_reply})
             
         except Exception as err:
-            print(f"Groq API Error: {err}")
-            fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة."
+            err_str = str(err)
+            if "429" in err_str:
+                fluffy_reply = "تم إرسال رسائل كثيرة في وقت قصير! يرجى الانتظار دقيقة واحدة فقط ثم المحاولة مجدداً ⏳"
+            elif "401" in err_str or "invalid_api_key" in err_str:
+                fluffy_reply = "مفتاح الاتصال (API Key) غير صالح أو تم إلغاؤه، يلزم تغييره من الإعدادات 🔑"
+            else:
+                fluffy_reply = f"حدث خطأ مؤقت في الاتصال، يرجى إعادة المحاولة."
         
         finally:
             if loading_bubble in chat_list.controls:
