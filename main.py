@@ -28,6 +28,7 @@ WELCOME_MESSAGES = [
     "رفيقكِ المخلص بانتظاركِ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀"
 ]
 
+# تم تعديل البرومبت لمنع رموز LaTeX الرياضية نهائياً من المصدر
 SYSTEM_PROMPT = """
 أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
 اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie (وتناديلها وتكتب اسمُها دائماً بهذه الزخرفة: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀) هي من صممتك وبرمجتك وطورتك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
@@ -39,16 +40,8 @@ SYSTEM_PROMPT = """
 4. تقمص الأدوار: أنت مرن ومستعد تماماً لتقمص أي دور تطلبه منك (صديق وفي، مبرمج، معلم، معالج نفسي، أو مستشار شخصي).
 5. الدقة والوضوح: قدم إجابات منظمة، منطقية، وواضحة جداً بعيداً عن الجمل الختامية المكررة أو الحشو.
 6. ألغاز القرابة: إذا واجهت لغزاً يتعلق بعلاقات القرابة المعقدة، فككه بهدوء وبأقل قدر من الرموز، وإذا وجدت تناقضاً اذكر ذلك مباشرة دون اختراع مقدمات عشوائية.
+7. كتابة المعادلات الرياضية: لا تستخدم صيغ LaTeX أو الرموز البرمجية المعقدة (مثل \\sqrt أو \\frac أو \\boxed أو \\left). اكتب المعادلة دائماً بكلمات نصوص واضحة ورموز رياضية بسيطة ومباشرة (مثل: √, π, /, ^2, *).
 """
-
-def clean_text_for_display(text: str) -> str:
-    if not text:
-        return ""
-    text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
-    text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
-    text = re.sub(r'\\(rho|pi|alpha|beta|gamma|delta|theta)', r'\1', text)
-    text = text.replace('$', '')
-    return text.strip()
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -154,34 +147,30 @@ async def main(page: ft.Page):
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
-    # التدرج اللوني الناعم والهادئ كما في الصورة الأصلية
-    soft_gradient_bg = ft.Container(
-        expand=True,
+    # الهندسة الصحيحة للتدرج اللوني أسفل الشاشة تماماً كما في الصورة:
+    # هالة شعاعية ناعمة بمركز سفلي متسع تدريجياً
+    bottom_gradient_bg = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.2),
-            radius=1.8,
+            center=ft.Alignment(0.0, 1.0),
+            radius=1.3,
             colors=[
-                ft.Colors.with_opacity(0.35, ft.Colors.PINK_200),
+                ft.Colors.with_opacity(0.40, ft.Colors.PINK_200),
                 ft.Colors.with_opacity(0.15, ft.Colors.PURPLE_100),
                 ft.Colors.with_opacity(0.0, ft.Colors.WHITE),
             ],
-            stops=[0.0, 0.5, 1.0]
-        )
+            stops=[0.0, 0.45, 1.0]
+        ),
+        padding=ft.Padding(16, 25, 16, 15), # مساحة تضمن نزول زر الإرسال للأسفل مع إعطاء خلفية ناعمة للتدرج
     )
 
-    # وضع حقل الإدخال وزر الإرسال أسفل التدرج الناعم مع إنزالهما للأسفل
-    input_row = ft.Container(
-        content=ft.Stack(
-            controls=[
-                soft_gradient_bg,
-                ft.Container(
-                    content=input_controls_row,
-                    padding=ft.Padding(16, 10, 16, 10),
-                    alignment=ft.Alignment(0, 1.0) # محاذاة لأسفل الحاوية
-                )
-            ]
-        ),
-        height=120, # ارتفاع الحاوية لإبقاء مساحة التدرج ممتدة دون تقليص
+    input_container = ft.Container(
+        content=input_controls_row,
+    )
+
+    bottom_gradient_bg.content = input_container
+
+    bottom_area = ft.Container(
+        content=bottom_gradient_bg,
         visible=False
     )
 
@@ -194,7 +183,7 @@ async def main(page: ft.Page):
     page.add(
         header,
         chat_area,
-        input_row
+        bottom_area
     )
 
     page.update()
@@ -209,7 +198,7 @@ async def main(page: ft.Page):
     await asyncio.sleep(0.8)
     welcome_text.opacity = 1
     header.visible = True
-    input_row.visible = True
+    bottom_area.visible = True
     page.update()
 
     def create_message_bubble(text, is_user=True):
@@ -223,10 +212,8 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        formatted_text = clean_text_for_display(text)
-
         text_widget = ft.Markdown(
-            value=formatted_text,
+            value=text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
             md_style_sheet=ft.MarkdownStyleSheet(
@@ -234,7 +221,7 @@ async def main(page: ft.Page):
             )
         )
 
-        is_long = len(formatted_text) > 35 or "\n" in formatted_text
+        is_long = len(text) > 35 or "\n" in text
 
         return ft.Row(
             controls=[
