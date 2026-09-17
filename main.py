@@ -44,7 +44,7 @@ SYSTEM_PROMPT = """
 [أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
 2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي.
-3. التنسيق الرياضي الصارم: يمنع منعاً باتاً استخدام أكواد LaTeX مثل \\frac أو \\boxed أو \\vec أو \\text أو أي رموز تبدأ بـ \\. بدلاً من ذلك، اكتب القوانين بكلمات ورموز حسابية عادية وواضحة جداً (مثال: "العائد = (القيمة النهائية - القيمة الابتدائية) ÷ القيمة الابتدائية").
+3. التنسيق الرياضي الصارم: يمنع منعاً باتاً استخدام أكواد ورموز LaTeX مثل \\frac أو \\boxed أو \\vec أو \\Longleftrightarrow أو \\displaystyle أو \\infty. اكتب المعاني والقوانين بلغة نصوص عربية بسيطة وواضحة (مثل: "تئول إلى ما لا نهاية" أو إشارة ⇔ العادية).
 4. اكتب بخطوات واضحة ومباشرة دون حشو. وأنهِ النص دائماً بعبارة ختامية رشيقة وذكية لمرة واحدة فقط.
 """
 
@@ -168,19 +168,17 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج الشعاعي القوسي الفاتح والمميز
+    # التدرج الشعاعي القوسي الفاتح جداً والناعم في الأسفل فقط
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.25),
-            radius=1.1,
+            center=ft.Alignment(0.0, 1.45),
+            radius=0.65,
             colors=[
-                ft.Colors.PINK_200,
-                ft.Colors.PINK_100,
-                ft.Colors.PURPLE_100,
-                ft.Colors.PURPLE_50,
-                ft.Colors.WHITE,
+                "#FDE8F0",
+                "#F8EEF8",
+                "#FFFFFF",
             ],
-            stops=[0.0, 0.25, 0.50, 0.75, 1.0]
+            stops=[0.0, 0.35, 0.75]
         ),
         expand=True
     )
@@ -220,16 +218,20 @@ async def main(page: ft.Page):
     page.update()
 
     def clean_latex(text: str) -> str:
-        # إزالة وتنظيف صيغ LaTeX المشوهة نهائياً
+        # إزالة وتنظيف كافة أوامر ورموز LaTeX المعقدة
         text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 ÷ \2)', text)
         text = re.sub(r'\\boxed\{([^}]+)\}', r'**[\1]**', text)
         text = re.sub(r'\\vec\{([^}]+)\}', r'\1⃗', text)
         text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
+        text = text.replace(r'\Longleftrightarrow', '⇔')
+        text = text.replace(r'\Leftrightarrow', '⇔')
+        text = text.replace(r'\displaystyle', '')
+        text = text.replace(r'\infty', '∞')
         text = text.replace(r'\times', '×')
         text = text.replace(r'\cdot', '·')
         text = text.replace('$', '')
         text = text.replace('\\[', '').replace('\\]', '')
-        text = text.replace('\\', '')
+        text = re.sub(r'\\([a-zA-Z]+)', r'\1', text)
         return text
 
     def create_message_bubble(text, is_user=True):
