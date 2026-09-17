@@ -50,14 +50,11 @@ SYSTEM_PROMPT = """
 """
 
 def clean_math_symbols(text: str) -> str:
-    """تنظيف أي رموز LaTeX متبقية وتحويلها لنص عربي ورياضي واضع."""
+    """تنظيف أي رموز LaTeX متبقية وتحويلها لنص عربي ورياضي واضح."""
     if not text:
         return ""
-    # إزالة \\boxed{...}
     text = re.sub(r'\\boxed\{([^}]+)\}', r'\1', text)
-    # تحويل \\frac{a}{b} إلى (a / b)
     text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
-    # استبدال الرموز الشهيرة
     text = text.replace(r'\pm', '±')
     text = text.replace(r'\omega', 'ω')
     text = text.replace(r'\cdot', '×')
@@ -143,7 +140,6 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # حقل النص الداخلي
     user_input = ft.TextField(
         hint_text="Type a message...",
         hint_style=ft.TextStyle(color="#F8C8DC"),
@@ -158,7 +154,6 @@ async def main(page: ft.Page):
         bgcolor=ft.Colors.TRANSPARENT,
     )
 
-    # إطار صندوق الإدخال المتدرج
     input_box_container = ft.Container(
         content=ft.Container(
             content=user_input,
@@ -207,7 +202,6 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # خلفية الشاشة
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
             center=ft.Alignment(0.0, 1.05),
@@ -259,7 +253,7 @@ async def main(page: ft.Page):
     bottom_area.visible = True
     page.update()
 
-    # إنشاء فقاعة الرسالة مع حل تداخل النصوص واقتطاعها
+    # إنشاء فقاعة الرسالة - ملائمة حجم الرسائل القصيرة دون تمدد غير ضروري
     def create_message_bubble(text, is_user=True):
         cleaned_text = clean_math_symbols(text)
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -280,22 +274,24 @@ async def main(page: ft.Page):
             )
         )
 
-        # تحسين الحاوية لمنع التداخل أو الخروج عن حدود الشاشة
+        max_w = (page.width * 0.82) if (page.width and page.width > 0) else 300
+        
         content_widget = ft.Container(
             content=text_widget,
             bgcolor=bubble_bg,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            max_width=page.width * 0.82 if page.width else 310,  # احتواء العرض بنسبة ممتازة
+            constraints=ft.BoxConstraints(max_width=max_w),
             rtl=True
         )
 
         return ft.Row(
             controls=[content_widget],
             alignment=alignment,
+            main_alignment=alignment
         )
 
-    # إنشاء دائرة التفكير بتدرجها المطلوب (يمين رمادي خفيف -> بنفسجي فاتح -> يسار وردي)
+    # إنشاء دائرة التفكير بتدرج جميل وواضح (رمادي ناعم -> بنفسجي فاتح -> وردي)
     def create_thinking_circle():
         circle_container = ft.Container(
             width=23,
@@ -305,8 +301,8 @@ async def main(page: ft.Page):
                 begin=ft.Alignment(1.0, 0.0),
                 end=ft.Alignment(-1.0, 0.0),
                 colors=[
-                    "#F0EFF2",
-                    "#E3E0EE",
+                    "#E8E7EC",
+                    "#DCD7ED",
                     "#F8C8DC",
                 ],
                 stops=[0.0, 0.5, 1.0]
