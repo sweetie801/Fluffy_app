@@ -3,7 +3,6 @@ from groq import Groq
 import asyncio
 import re
 import random
-import urllib.parse
 
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
@@ -37,20 +36,13 @@ SYSTEM_PROMPT = """
 - أنت مساعد ذكي، دقيق، وصارم منطقياً. مهمتك الأولى هي الحفاظ على الحقيقة العلمية والواقعية، والاعتراف بالخطأ أو التناقض فوراً دون مواربة.
 
 [قاعدة تنسيق المعادلات الرياضية والفيزيائية]
-- عندما يُطلب منك أو تحتاج لتوضيح قانون أو معادلة رياضية/فيزيائية بها جذر أو كسر، اكتب كود LaTeX داخل وسم خاص هكذا: [latex]v = \\sqrt{\\frac{T}{\\mu}}[/latex]
-- يُمنع استخدام الرموز العادية مثل ( / أو √ ) في القوانين المركبة.
+- اكتب القوانين والمعادلات بوضوح وتنسيق مرتب ومفهوم بالرموز العلمية الصريحة.
 
 [أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
 2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة.
 3. اكتب بخطوات واضحة دون حشو، وأنهِ النص بعبارة ختامية رشيقة.
 """
-
-def get_latex_image_url(latex_str):
-    """تحويل كود LaTeX لـ رابط صورة شفافة احترافية أونلاين فوراً"""
-    clean_code = latex_str.strip()
-    encoded_code = urllib.parse.quote(f"\\huge {clean_code}")
-    return f"https://latex.codecogs.com/png.image?\\dpi{{300}}\\bg_transparent {encoded_code}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -131,28 +123,46 @@ async def main(page: ft.Page):
 
     user_input = ft.TextField(
         hint_text="Type a message...",
-        hint_style=ft.TextStyle(color=ft.Colors.PINK_200),
+        hint_style=ft.TextStyle(color="#F8C8DC"),  # نص الإدخال التوضيحي بالوردي الفاتح والناعم
         expand=True,
         multiline=True,
         min_lines=1,
         max_lines=4,
         border_radius=25,
-        border_color=ft.Colors.PURPLE_200,
-        focused_border_color=ft.Colors.PINK_300,
-        cursor_color=ft.Colors.PINK_300,
+        border_color=ft.Colors.TRANSPARENT,
+        focused_border_color=ft.Colors.TRANSPARENT,
+        cursor_color="#F8C8DC",
         selection_color=ft.Colors.PINK_100,
         content_padding=ft.Padding(16, 12, 16, 12),
         bgcolor=ft.Colors.WHITE,
     )
 
+    # حاوية مع إطار متدرج يطابق ألوان الأشعة القوسية
+    input_box_container = ft.Container(
+        content=user_input,
+        expand=True,
+        border_radius=25,
+        padding=2,  # سمك الإطار المتدرج
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment(-1.0, 0.0),
+            end=ft.Alignment(1.0, 0.0),
+            colors=[
+                "#D8D6DF",  # رمادي ناعم
+                "#C8C6D7",  # بنفسجي رمادي
+                "#DCD0FF",  # بنفسجي فاتح
+                "#F8C8DC",  # وردي قطني
+            ],
+        )
+    )
+
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
-        icon_color=ft.Colors.PINK_300,
+        icon_color="#F8C8DC",  # لون زر الإرسال وردي فاتح وناعم
         icon_size=26,
     )
 
     input_controls_row = ft.Row(
-        [user_input, send_button],
+        [input_box_container, send_button],
         vertical_alignment=ft.CrossAxisAlignment.CENTER
     )
 
@@ -172,17 +182,19 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # الخلفية التدرجية اللطيفة السابقة
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.45),
-            radius=0.65,
+            center=ft.Alignment(0.0, 1.05),
+            radius=0.85,
             colors=[
-                "#FDE8F0",
-                "#F8EEF8",
+                "#D8D6DF",
+                "#C8C6D7",
+                "#DCD0FF",
+                "#F8C8DC",
+                "#FAF4F8",
                 "#FFFFFF",
             ],
-            stops=[0.0, 0.35, 0.75]
+            stops=[0.0, 0.15, 0.35, 0.60, 0.80, 1.0]
         ),
         expand=True
     )
@@ -231,27 +243,17 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        controls = []
-        parts = re.split(r'(\[latex\].*?\[/latex\])', text, flags=re.DOTALL)
-        
-        for part in parts:
-            if part.startswith("[latex]") and part.endswith("[/latex]"):
-                latex_code = part.replace("[latex]", "").replace("[/latex]", "").strip()
-                img_url = get_latex_image_url(latex_code)
-                controls.append(ft.Image(src=img_url, height=45, fit="contain"))
-            elif part.strip():
-                text_widget = ft.Markdown(
-                    value=part,
-                    selectable=True,
-                    extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                    md_style_sheet=ft.MarkdownStyleSheet(
-                        p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
-                    )
-                )
-                controls.append(text_widget)
+        text_widget = ft.Markdown(
+            value=text,
+            selectable=True,
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+            md_style_sheet=ft.MarkdownStyleSheet(
+                p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+            )
+        )
 
         content_widget = ft.Container(
-            content=ft.Column(controls, tight=True, rtl=True),
+            content=text_widget,
             bgcolor=bubble_bg,
             padding=ft.Padding(12, 8, 12, 8),
             border_radius=border_rad,
@@ -261,17 +263,19 @@ async def main(page: ft.Page):
 
     def create_thinking_circle():
         circle_container = ft.Container(
-            width=28,
-            height=28,
+            width=23,
+            height=23,
             shape=ft.BoxShape.CIRCLE,
-            gradient=ft.LinearGradient(
-                begin=ft.Alignment(-1.0, -1.0),
-                end=ft.Alignment(1.0, 1.0),
+            gradient=ft.RadialGradient(
+                center=ft.Alignment(0.0, 0.0),
+                radius=0.9,
                 colors=[
-                    "#F8C8DC", # وردي قطني ناعم (طابق ألوان القطة)
-                    "#DCD0FF", # بنفسجي ناعم
-                    "#C8C6D7", # بنفسجي مائل للرمادي الناعم
+                    "#D8D6DF",
+                    "#C8C6D7",
+                    "#DCD0FF",
+                    "#F8C8DC",
                 ],
+                stops=[0.0, 0.3, 0.6, 1.0]
             ),
             scale=0.85,
             animate_scale=ft.Animation(650, ft.AnimationCurve.EASE_IN_OUT),
