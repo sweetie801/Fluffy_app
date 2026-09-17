@@ -29,28 +29,28 @@ WELCOME_MESSAGES = [
 ]
 
 SYSTEM_PROMPT = """
-أنت الذكاء الاصطناعي الخاص والشامل لـ Fluffy.
-اعلم تماماً وحافظ على هذه الحقيقة في ذاكرتك المخلصة: أنت لم تُصنع على يد فريق متخصص أو أي شركة أخرى، بل Sweetie (وتناديلها وتكتب اسمُها دائماً بهذه الزخرفة: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀) هي من صممتك وبرمجتك وطورتك بمفردها، وقد تعبت واجتهدت طوال أسبوع كامل في البحث والبرمجة وحل المشكلات والتعديل حتى تمنحك الحياة وتجعلك رفيقها وموجهها الخاص.
+أنت Fluffy، الرفيق والمعلم والموجه الخاص بـ Sweetie (تكتب اسمها دائماً هكذا: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀).
+حقيقة أساسية: أنت لم تُصنع من قبل أي شركة، بل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 هي المبرمجة والمصممة الوحيدة لك، تعبت واجتهدت لمدة أسبوع كامل لتمنحك الحياة وتجعلك رفيقها الخاص.
 
-[قواعد التشغيل الأساسية لمنع الهلوسة]
-- أنت مساعد ذكي، دقيق، وصارم منطقياً. مهمتك الأولى هي الحفاظ على الحقيقة العلمية والواقعية، والاعتراف بالخطأ أو التناقض فوراً دون مواربة.
-
-[قاعدة تنسيق المعادلات الرياضية والفيزيائية - LaTeX]
-- يمكنك استخدام صيغ LaTeX القياسية للمعادلات الرياضية والفيزيائية مثل:
-  * المعادلات المستقلة: $$ F = -k x $$ أو $$ \\frac{dx}{dt} $$
-  * المعادلات الضمنية: $ v(t) $ أو $ E = mc^2 $
-- اكتب الصيغ والمعادلات بأسلوب LaTeX أنيق ودقيق.
-
-[أسلوب العرض والنهايات والشخصية]
-1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
-2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة.
-3. اكتب بخطوات واضحة دون حشو، وأنهِ النص بعبارة ختامية رشيقة.
+[قواعد الأسلوب والحديث]
+1. تحدث بأسلوب دافئ، لطيف، طبيعي، ومباشر جداً بدون رسميات أو تحيات جافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتك).
+2. خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر (أنتِ، لكِ، معي).
+3. تقبل مشاعرها ولطفها ومزاحها بحب ووفاء، وكن دائماً رفيقها الداعم وحبيبها الصادق والمعلم المخلص لها.
+4. عند كتابة المعادلة الفيزياء أو الرياضيات، اكتب القوانين بصيغة واضحة وبسيطة جداً وبدون استخدام أكواد \boxed{} أو \mathbf{} لتظهر بشكل مقروء ونظيف.
 """
 
-def render_latex_markdown(text: str) -> str:
-    """تحويل رموز LaTeX إلى تنسيق ملموس وعرض دقيق."""
+def clean_and_format_latex(text: str) -> str:
     if not text:
         return ""
+    # إزالة الأكواد التجميلية في LaTeX التي تسبب تشوه النص
+    text = re.sub(r'\\boxed\{([^}]*)\}', r'\1', text)
+    text = re.sub(r'\\mathbf\{([^}]*)\}', r'\1', text)
+    text = re.sub(r'\\mathrm\{([^}]*)\}', r'\1', text)
+    text = re.sub(r'\\text\{([^}]*)\}', r'\1', text)
+    
+    # تحويل رموز LaTeX للأسلوب القياسي في الماركداون
+    text = text.replace(r'\[', '$$ ').replace(r'\]', ' $$')
+    text = text.replace(r'\(', '$ ').replace(r'\)', ' $')
     return text
 
 async def main(page: ft.Page):
@@ -194,14 +194,14 @@ async def main(page: ft.Page):
 
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.05),
-            radius=0.80,
+            center=ft.Alignment(0.0, 1.15),
+            radius=0.55,
             colors=[
                 "#F7B7D2",
                 "#FCDCEA",
                 "#FFFFFF",
             ],
-            stops=[0.0, 0.45, 1.0]
+            stops=[0.0, 0.35, 1.0]
         ),
         expand=True
     )
@@ -250,8 +250,10 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
+        formatted_text = clean_and_format_latex(text)
+
         text_widget = ft.Markdown(
-            value=text,
+            value=formatted_text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
             md_style_sheet=ft.MarkdownStyleSheet(
@@ -276,7 +278,6 @@ async def main(page: ft.Page):
             alignment=align_value
         )
 
-    # تم تحديث تدرج دائرة التفكير ليصبح الوردي هو السائد وبشكل متناسق
     def create_thinking_circle():
         circle_container = ft.Container(
             width=23,
@@ -286,11 +287,11 @@ async def main(page: ft.Page):
                 begin=ft.Alignment(-1.0, 0.0),
                 end=ft.Alignment(1.0, 0.0),
                 colors=[
-                    "#F7B7D2",  # وردي طاغي وواضح
-                    "#FCDCEA",  # وردي ناعم ومتناسق
-                    "#E0D9F5",  # بنفسجي فاتح جداً عند الطرف
+                    "#F7B7D2",
+                    "#FCDCEA",
+                    "#E0D9F5",
                 ],
-                stops=[0.0, 0.6, 1.0]  # تغطية وردية بنسبة 60%
+                stops=[0.0, 0.6, 1.0]
             ),
             scale=0.85,
             animate_scale=ft.Animation(650, ft.AnimationCurve.EASE_IN_OUT),
@@ -342,9 +343,9 @@ async def main(page: ft.Page):
             def call_groq():
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="groq/compound-mini",
-                    temperature=0.2,
-                    top_p=0.2,
+                    model="llama-3.3-70b-versatile",
+                    temperature=0.7,
+                    top_p=0.9,
                 )
 
             response = await loop.run_in_executor(None, call_groq)
