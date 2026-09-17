@@ -142,13 +142,13 @@ async def main(page: ft.Page):
 
     user_input = ft.TextField(
         hint_text="Type a message...",
-        hint_style=ft.TextStyle(color="#F8C8DC"),
+        hint_style=ft.TextStyle(color="#E8B4C8"),
         expand=True,
         multiline=True,
         min_lines=1,
         max_lines=4,
         border=ft.InputBorder.NONE,
-        cursor_color="#F8C8DC",
+        cursor_color="#E8B4C8",
         selection_color=ft.Colors.PINK_100,
         content_padding=ft.Padding(16, 10, 16, 10),
         bgcolor=ft.Colors.TRANSPARENT,
@@ -167,17 +167,17 @@ async def main(page: ft.Page):
             begin=ft.Alignment(-1.0, 0.0),
             end=ft.Alignment(1.0, 0.0),
             colors=[
-                "#ECEBF0",
-                "#E6E1F5",
-                "#F3E5F5",
-                "#F8C8DC",
+                "#F2F0F5",
+                "#EBE6F7",
+                "#F5ECF7",
+                "#F4D3E2",
             ],
         )
     )
 
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
-        icon_color="#F8C8DC",
+        icon_color="#E8B4C8",
         icon_size=26,
     )
 
@@ -204,17 +204,16 @@ async def main(page: ft.Page):
 
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.05),
-            radius=0.70,
+            center=ft.Alignment(0.0, 1.08),
+            radius=0.58,
             colors=[
-                "#ECEBF0",
-                "#E6E1F5",
-                "#F3E5F5",
-                "#F8C8DC",
-                "#FCF0F5",
+                "#FAF0F5",
+                "#F6E9F2",
+                "#F8EEF6",
+                "#FAF5FC",
                 "#FFFFFF",
             ],
-            stops=[0.0, 0.12, 0.28, 0.55, 0.78, 1.0]
+            stops=[0.0, 0.25, 0.50, 0.75, 1.0]
         ),
         expand=True
     )
@@ -253,7 +252,7 @@ async def main(page: ft.Page):
     bottom_area.visible = True
     page.update()
 
-    # إنشاء فقاعة الرسالة - ملائمة حجم الرسائل القصيرة دون تمدد غير ضروري
+    # إنشاء فقاعة الرسالة آمنة تماماً ومتوافقة مع كافة إصدارات Flet
     def create_message_bubble(text, is_user=True):
         cleaned_text = clean_math_symbols(text)
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
@@ -274,14 +273,15 @@ async def main(page: ft.Page):
             )
         )
 
-        max_w = (page.width * 0.82) if (page.width and page.width > 0) else 300
+        # تحديد العرض الأقصى المناسب بدون استخدام 'constraints'
+        max_w = (page.width * 0.82) if (page.width and page.width > 0) else 290
         
         content_widget = ft.Container(
             content=text_widget,
             bgcolor=bubble_bg,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            constraints=ft.BoxConstraints(max_width=max_w),
+            width=max_w if len(cleaned_text) > 35 else None,
             rtl=True
         )
 
@@ -291,7 +291,6 @@ async def main(page: ft.Page):
             main_alignment=alignment
         )
 
-    # إنشاء دائرة التفكير بتدرج جميل وواضح (رمادي ناعم -> بنفسجي فاتح -> وردي)
     def create_thinking_circle():
         circle_container = ft.Container(
             width=23,
@@ -303,7 +302,7 @@ async def main(page: ft.Page):
                 colors=[
                     "#E8E7EC",
                     "#DCD7ED",
-                    "#F8C8DC",
+                    "#F4D3E2",
                 ],
                 stops=[0.0, 0.5, 1.0]
             ),
