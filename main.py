@@ -35,13 +35,11 @@ SYSTEM_PROMPT = """
 [قواعد التشغيل الأساسية لمنع الهلوسة]
 - أنت مساعد ذكي، دقيق، وصارم منطقياً. مهمتك الأولى هي الحفاظ على الحقيقة العلمية والواقعية، والاعتراف بالخطأ أو التناقض فوراً دون مواربة.
 
-[قاعدة صارمة لتنسيق المعادلات الرياضية والفيزيائية]
-- يمنع منعاً باتاً استخدام أكواد LaTeX مثل \\boxed, \\frac, \\pm, \\omega, \\cdot وغيرها.
-- اكتب القوانين والمعادلات بأسلوب نصي مباشر وواضح بالرموز النصية العادية، مثل:
-  * اكتب: F = -k × x (بدلاً من boxed)
-  * اكتب: v(t) = dx / dt
-  * اكتب: K = ½ m v² أو (1/2) m v²
-  * استخدم الأسس البسيطة (x², v²) والكسور النصية الشارحة المباشرة.
+[قاعدة تنسيق المعادلات الرياضية والفيزيائية - LaTeX]
+- يمكنك استخدام صيغ LaTeX القياسية للمعادلات الرياضية والفيزيائية مثل:
+  * المعادلات المستقلة: $$ F = -k x $$ أو $$ \\frac{dx}{dt} $$
+  * المعادلات الضمنية: $ v(t) $ أو $ E = mc^2 $
+- اكتب الصيغ والمعادلات بأسلوب LaTeX أنيق ودقيق.
 
 [أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
@@ -49,18 +47,10 @@ SYSTEM_PROMPT = """
 3. اكتب بخطوات واضحة دون حشو، وأنهِ النص بعبارة ختامية رشيقة.
 """
 
-def clean_math_symbols(text: str) -> str:
-    """تنظيف أي رموز LaTeX متبقية وتحويلها لنص عربي ورياضي واضح."""
+def render_latex_markdown(text: str) -> str:
+    """تحويل رموز LaTeX إلى تنسيق ملموس وعرض دقيق."""
     if not text:
         return ""
-    text = re.sub(r'\\boxed\{([^}]+)\}', r'\1', text)
-    text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
-    text = text.replace(r'\pm', '±')
-    text = text.replace(r'\omega', 'ω')
-    text = text.replace(r'\cdot', '×')
-    text = text.replace(r'\times', '×')
-    text = text.replace(r'\[', '').replace(r'\]', '')
-    text = text.replace(r'\(', '').replace(r'\)', '')
     return text
 
 async def main(page: ft.Page):
@@ -202,17 +192,16 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج القوسي الناعم والمحدد بالمساحة واللون الاستثنائي
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.08),
-            radius=0.75,
+            center=ft.Alignment(0.0, 1.05),
+            radius=0.80,
             colors=[
-                "#FDE2EC",
-                "#FAF0F5",
+                "#F7B7D2",
+                "#FCDCEA",
                 "#FFFFFF",
             ],
-            stops=[0.0, 0.55, 1.0]
+            stops=[0.0, 0.45, 1.0]
         ),
         expand=True
     )
@@ -252,7 +241,6 @@ async def main(page: ft.Page):
     page.update()
 
     def create_message_bubble(text, is_user=True):
-        cleaned_text = clean_math_symbols(text)
         align_value = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         border_rad = ft.BorderRadius(
@@ -263,11 +251,12 @@ async def main(page: ft.Page):
         )
 
         text_widget = ft.Markdown(
-            value=cleaned_text,
+            value=text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
             md_style_sheet=ft.MarkdownStyleSheet(
                 p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+                code_text_style=ft.TextStyle(font_family="monospace", color=ft.Colors.PURPLE_900),
             )
         )
 
@@ -278,7 +267,7 @@ async def main(page: ft.Page):
             bgcolor=bubble_bg,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            width=max_w if len(cleaned_text) > 35 else None,
+            width=max_w if len(text) > 35 else None,
             rtl=True
         )
 
@@ -287,20 +276,21 @@ async def main(page: ft.Page):
             alignment=align_value
         )
 
+    # تم تحديث تدرج دائرة التفكير ليصبح الوردي هو السائد وبشكل متناسق
     def create_thinking_circle():
         circle_container = ft.Container(
             width=23,
             height=23,
             shape=ft.BoxShape.CIRCLE,
             gradient=ft.LinearGradient(
-                begin=ft.Alignment(1.0, 0.0),
-                end=ft.Alignment(-1.0, 0.0),
+                begin=ft.Alignment(-1.0, 0.0),
+                end=ft.Alignment(1.0, 0.0),
                 colors=[
-                    "#E8E7EC",
-                    "#DCD7ED",
-                    "#F8C8DC",
+                    "#F7B7D2",  # وردي طاغي وواضح
+                    "#FCDCEA",  # وردي ناعم ومتناسق
+                    "#E0D9F5",  # بنفسجي فاتح جداً عند الطرف
                 ],
-                stops=[0.0, 0.5, 1.0]
+                stops=[0.0, 0.6, 1.0]  # تغطية وردية بنسبة 60%
             ),
             scale=0.85,
             animate_scale=ft.Animation(650, ft.AnimationCurve.EASE_IN_OUT),
@@ -353,8 +343,8 @@ async def main(page: ft.Page):
                 return client.chat.completions.create(
                     messages=conversation_history,
                     model="groq/compound-mini",
-                    temperature=0.0,
-                    top_p=0.1,
+                    temperature=0.2,
+                    top_p=0.2,
                 )
 
             response = await loop.run_in_executor(None, call_groq)
