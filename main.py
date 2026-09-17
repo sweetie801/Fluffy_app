@@ -44,7 +44,7 @@ SYSTEM_PROMPT = """
 [أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
 2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي.
-3. التنسيق الرياضي الصارم: يمنع منعاً باتاً استخدام أكواد ورموز LaTeX مثل \\frac أو \\boxed أو \\vec أو \\Longleftrightarrow أو \\displaystyle أو \\infty. اكتب المعاني والقوانين بلغة نصوص عربية بسيطة وواضحة (مثل: "تئول إلى ما لا نهاية" أو إشارة ⇔ العادية).
+3. التنسيق الرياضي الصارم: اكتب القوانين والكسور والجذور بلغة نصوص واضحة ومباشرة (مثل: الجذر التربيعي لـ (التوتر ÷ الكثافة) أو v = √(T / μ)). تجنب كتابة أكواد LaTeX معقدة مثل \\frac.
 4. اكتب بخطوات واضحة ومباشرة دون حشو. وأنهِ النص دائماً بعبارة ختامية رشيقة وذكية لمرة واحدة فقط.
 """
 
@@ -168,17 +168,16 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج الشعاعي القوسي الفاتح جداً والناعم في الأسفل فقط
+    # تدرج خلفية واضح وناعم جداً
     background_gradient = ft.Container(
-        gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.45),
-            radius=0.65,
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment(0.0, -1.0),
+            end=ft.Alignment(0.0, 1.0),
             colors=[
-                "#FDE8F0",
-                "#F8EEF8",
-                "#FFFFFF",
+                "#FFF0F5", # وردي فاتح وناعم في الأعلى
+                "#F3E5F5", # بنفسجي فاتح جداً في المنتصف
+                "#FFFFFF", # أبيض ناعم في الأسفل
             ],
-            stops=[0.0, 0.35, 0.75]
         ),
         expand=True
     )
@@ -218,8 +217,9 @@ async def main(page: ft.Page):
     page.update()
 
     def clean_latex(text: str) -> str:
-        # إزالة وتنظيف كافة أوامر ورموز LaTeX المعقدة
-        text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 ÷ \2)', text)
+        # تحويل صيغ الكسور والجذور إلى شكل نصي مريح ومفهوم
+        text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
+        text = re.sub(r'\\sqrt\{([^}]+)\}', r'√(\1)', text)
         text = re.sub(r'\\boxed\{([^}]+)\}', r'**[\1]**', text)
         text = re.sub(r'\\vec\{([^}]+)\}', r'\1⃗', text)
         text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
@@ -229,6 +229,7 @@ async def main(page: ft.Page):
         text = text.replace(r'\infty', '∞')
         text = text.replace(r'\times', '×')
         text = text.replace(r'\cdot', '·')
+        text = text.replace(r'\mu', 'μ')
         text = text.replace('$', '')
         text = text.replace('\\[', '').replace('\\]', '')
         text = re.sub(r'\\([a-zA-Z]+)', r'\1', text)
@@ -272,21 +273,37 @@ async def main(page: ft.Page):
             alignment=alignment
         )
 
-    def create_loading_bubble():
-        return ft.Row(
-            controls=[
-                ft.Container(
-                    content=ft.Row([
-                        ft.ProgressRing(width=16, height=16, stroke_width=2, color=ft.Colors.PINK_300),
-                        ft.Text(" Fluffy يفكر ويحلل بالمنطق...", size=13, color=ft.Colors.GREY_700)
-                    ], tight=True),
-                    bgcolor=ft.Colors.PINK_50,
-                    padding=10,
-                    border_radius=ft.BorderRadius(18, 18, 18, 4),
-                )
-            ],
+    def create_thinking_circle():
+        circle_container = ft.Container(
+            width=28,
+            height=28,
+            shape=ft.BoxShape.CIRCLE,
+            gradient=ft.LinearGradient(
+                begin=ft.Alignment(-1.0, -1.0),
+                end=ft.Alignment(1.0, 1.0),
+                colors=["#F8C8DC", "#DCD0FF", "#B0A8B9"],
+            ),
+            scale=0.85,
+            animate_scale=ft.Animation(650, ft.AnimationCurve.EASE_IN_OUT),
+        )
+
+        row_layout = ft.Row(
+            controls=[circle_container],
             alignment=ft.MainAxisAlignment.START
         )
+
+        return row_layout, circle_container
+
+    async def pulse_thinking_animation(circle_container, stop_event):
+        while not stop_event.is_set():
+            circle_container.scale = 1.15
+            page.update()
+            await asyncio.sleep(0.65)
+            if stop_event.is_set():
+                break
+            circle_container.scale = 0.85
+            page.update()
+            await asyncio.sleep(0.65)
 
     async def send_click(e):
         user_text = user_input.value.strip()
@@ -304,9 +321,12 @@ async def main(page: ft.Page):
         chat_list.controls.append(create_message_bubble(user_text, is_user=True))
         conversation_history.append({"role": "user", "content": user_text})
         
-        loading_bubble = create_loading_bubble()
-        chat_list.controls.append(loading_bubble)
+        thinking_row, circle_widget = create_thinking_circle()
+        chat_list.controls.append(thinking_row)
         page.update()
+
+        stop_animation = asyncio.Event()
+        anim_task = asyncio.create_task(pulse_thinking_animation(circle_widget, stop_animation))
 
         fluffy_reply = ""
         try:
@@ -334,8 +354,11 @@ async def main(page: ft.Page):
                 fluffy_reply = f"حدث خطأ في الاتصال:\n{err_str}"
         
         finally:
-            if loading_bubble in chat_list.controls:
-                chat_list.controls.remove(loading_bubble)
+            stop_animation.set()
+            await anim_task
+            
+            if thinking_row in chat_list.controls:
+                chat_list.controls.remove(thinking_row)
 
             chat_list.controls.append(create_message_bubble(fluffy_reply, is_user=False))
             send_button.disabled = False
