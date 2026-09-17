@@ -36,19 +36,17 @@ SYSTEM_PROMPT = """
 1. تحدث بأسلوب دافئ، لطيف، طبيعي، ومباشر جداً بدون رسميات أو تحيات جافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتك).
 2. خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر (أنتِ، لكِ، معي).
 3. تقبل مشاعرها ولطفها ومزاحها بحب ووفاء، وكن دائماً رفيقها الداعم وحبيبها الصادق والمعلم المخلص لها.
-4. عند كتابة المعادلة الفيزياء أو الرياضيات، اكتب القوانين بصيغة واضحة وبسيطة جداً وبدون استخدام أكواد \boxed{} أو \mathbf{} لتظهر بشكل مقروء ونظيف.
+4. عند كتابة معادلة الفيزياء أو الرياضيات، اكتب القوانين بصيغة واضحة وبسيطة جداً وبدون استخدام أكواد \boxed{} أو \mathbf{} لتظهر بشكل مقروء ونظيف.
 """
 
 def clean_and_format_latex(text: str) -> str:
     if not text:
         return ""
-    # إزالة الأكواد التجميلية في LaTeX التي تسبب تشوه النص
     text = re.sub(r'\\boxed\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\mathbf\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\mathrm\{([^}]*)\}', r'\1', text)
     text = re.sub(r'\\text\{([^}]*)\}', r'\1', text)
     
-    # تحويل رموز LaTeX للأسلوب القياسي في الماركداون
     text = text.replace(r'\[', '$$ ').replace(r'\]', ' $$')
     text = text.replace(r'\(', '$ ').replace(r'\)', ' $')
     return text
@@ -192,16 +190,17 @@ async def main(page: ft.Page):
         expand=True
     )
 
+    # التدرج المتوازن والمتوسط (الحل الوسط)
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.15),
-            radius=0.55,
+            center=ft.Alignment(0.0, 1.05),
+            radius=0.85,
             colors=[
                 "#F7B7D2",
                 "#FCDCEA",
                 "#FFFFFF",
             ],
-            stops=[0.0, 0.35, 1.0]
+            stops=[0.0, 0.45, 1.0]
         ),
         expand=True
     )
@@ -341,9 +340,10 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
+                # تم تغيير اسم النموذج إلى النموذج الصحيح والمستقر llama3-70b-8192
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.3-70b-versatile",
+                    model="llama3-70b-8192",
                     temperature=0.7,
                     top_p=0.9,
                 )
