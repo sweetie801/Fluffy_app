@@ -202,18 +202,17 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # تدرج خطي متناسق يحتضن منطقة الإدخال أعلاها وخلفها وأسفلها بدقة
+    # التدرج القوسي الناعم والمحدد بالمساحة واللون الاستثنائي
     background_gradient = ft.Container(
-        gradient=ft.LinearGradient(
-            begin=ft.Alignment(0.0, -1.0),
-            end=ft.Alignment(0.0, 1.0),
+        gradient=ft.RadialGradient(
+            center=ft.Alignment(0.0, 1.08),
+            radius=0.75,
             colors=[
+                "#FDE2EC",
+                "#FAF0F5",
                 "#FFFFFF",
-                "#FFFFFF",
-                "#FAF2F7",
-                "#F8C8DC",
             ],
-            stops=[0.0, 0.65, 0.82, 1.0]
+            stops=[0.0, 0.55, 1.0]
         ),
         expand=True
     )
