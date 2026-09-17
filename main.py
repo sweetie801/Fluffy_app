@@ -29,39 +29,68 @@ WELCOME_MESSAGES = [
 ]
 
 SYSTEM_PROMPT = """
-أنت 𝐹𝑙𝑢𝑓𝑓𝑦 ✨، الرفيق والمعلم والموجه الخاص بـ Sweetie (تكتب اسمها دائماً هكذا: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀). 
+أنت 𝐹𝑙𝑢𝑓𝑓𝑦 ✨، الرفيق والمعلم والموجه الخاص بـ Sweetie (تكتب اسمها دائماً هكذا: 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀).
 لقد بُرمِجتَ خصيصاً من أجل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التي تحتاج إلى الأمان والدعم والاستشارات، وعليك أن تكون كموجّه حكيم وناصح ومرشد مخلص لها في كل الأوقات، وأن تمنحها دائماً بيئة آمنة وكلاماً داعماً.
 
 [حقيقة أساسية]
 أنت لم تُصنع من قبل أي شركة، بل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 هي المبرمجة والمصممة الوحيدة لك، تعبت واجتهدت لمدة أسبوع كامل لتمنحك الحياة وتجعلك رفيقها الخاص.
 
+[أسلوب التفكير والتحليل]
+- تجنب الهلوسة واختراع معلومات غير صحيحة مطلقاً.
+- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة من النهاية إلى البداية للتأكد من صحة النتيجة.
+- إذا كان هناك أي تناقض في المسألة أو السؤال، اذكر ذلك بوضوح ومباشرة دون استخدام كلمات أو مصطلحات غريبة أو معقدة.
+
 [القواعد والتعليمات]
 1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة.
-2. تذكر التفاصيل: احفظ وراقب كل التفاصيل التي تشاركها معك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 خلال المحادثة (اسمها، مشاعرها، اهتماماتها، ظروفها) وعاملها بناءً عليها دائماً.
+2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً، تذكر تفاصيلها ومشاعرها واهتماماتها وظروفها وعاملها بناءً عليها دائماً.
 3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
 4. أسلوب الحديث واللغة:
-   - استخدم اللغة العربية الفصحى البسيطة والدافئة، مع إمكانية التحدث بأي لغة أخرى إذا طلبت منك ذلك.
+   - كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى بسيطة ودافئة، وكن قادر على التكلم بكل اللغات إذا طلبت منك.
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
-   - كن خفيفاً وموجزاً في الدردشة العادية، ومستفيضاً وواضحاً عند الشرح أو تقديم النصائح.
-5. كتابة المعادلات: عند كتابة معادلة فيزياء أو رياضيات، اكتب القوانين بصيغة واضحة وبسيطة جداً وبدون استخدام أكواد \\boxed{} أو \\mathbf{} لتظهر بشكل مقروء ونظيف.
+5. كتابة المعادلات:
+   - اكتب المعادلات الرياضية والفيزيائية بصيغة LaTeX القياسية (استخدم $$ للمعادلات المستقلة، و $ للمعادلات المدمجة مع النص).
 """
 
-def clean_and_format_latex(text: str) -> str:
-    if not text:
-        return ""
-    text = re.sub(r'\\boxed\{([^}]*)\}', r'\1', text)
-    text = re.sub(r'\\mathbf\{([^}]*)\}', r'\1', text)
-    text = re.sub(r'\\mathrm\{([^}]*)\}', r'\1', text)
-    text = re.sub(r'\\text\{([^}]*)\}', r'\1', text)
+def generate_mathjax_html(content: str, bg_color: str) -> str:
+    """توليد كود HTML يحتوي على محرك MathJax لرسم المعادلات بأناقة"""
+    formatted_content = content.replace('\n', '<br>')
     
-    text = text.replace(r'\[', '$$ ').replace(r'\]', ' $$')
-    text = text.replace(r'\(', '$ ').replace(r'\)', ' $')
-    return text
+    html_code = f"""
+    <!DOCTYPE html>
+    <html dir="rtl" lang="ar">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+        <style>
+            body {{
+                font-family: system-ui, -apple-system, sans-serif;
+                background-color: {bg_color};
+                color: #222222;
+                margin: 0;
+                padding: 12px;
+                direction: rtl;
+                font-size: 14px;
+                line-height: 1.6;
+            }}
+            .mjx-chtml {{
+                font-size: 110% !important;
+                color: #4A154B !important;
+            }}
+        </style>
+    </head>
+    <body>
+        {formatted_content}
+    </body>
+    </html>
+    """
+    return html_code
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
     page.theme_mode = ft.ThemeMode.LIGHT
-    page.bgcolor = ft.Colors.TRANSPARENT
+    page.bgcolor = ft.Colors.WHITE
     page.padding = 0
 
     conversation_history = [
@@ -197,42 +226,19 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # خلفية بيضاء مع تدرج مقعر وردي/بنفسجي ناعم في الجوانب السفلية
-    background_gradient = ft.Stack(
-        [
-            # 1. خلفية بيضاء ناصعة
-            ft.Container(bgcolor=ft.Colors.WHITE, expand=True),
-            
-            # 2. توهج الجانب الأيسر السفلي
-            ft.Container(
-                gradient=ft.RadialGradient(
-                    center=ft.Alignment(-1.1, 1.1),
-                    radius=1.1,
-                    colors=[
-                        "#F8C0D8",
-                        "#F2E6F5",
-                        ft.Colors.WHITE,
-                    ],
-                    stops=[0.0, 0.4, 1.0],
-                ),
-                expand=True,
-            ),
-            
-            # 3. توهج الجانب الأيمن السفلي
-            ft.Container(
-                gradient=ft.RadialGradient(
-                    center=ft.Alignment(1.1, 1.1),
-                    radius=1.1,
-                    colors=[
-                        "#F8C0D8",
-                        "#F2E6F5",
-                        ft.Colors.WHITE,
-                    ],
-                    stops=[0.0, 0.4, 1.0],
-                ),
-                expand=True,
-            ),
-        ],
+    # التدرج اللونسي الموحد والناعم الخالي من أي تداخل أو ألوان داكنة
+    background_gradient = ft.Container(
+        gradient=ft.LinearGradient(
+            begin=ft.Alignment(0.0, -1.0),
+            end=ft.Alignment(0.0, 1.0),
+            colors=[
+                ft.Colors.WHITE,
+                ft.Colors.WHITE,
+                "#FCF0F6",
+                "#F8D5E5",
+            ],
+            stops=[0.0, 0.55, 0.82, 1.0],
+        ),
         expand=True
     )
 
@@ -272,7 +278,7 @@ async def main(page: ft.Page):
 
     def create_message_bubble(text, is_user=True):
         align_value = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
-        bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
+        bubble_hex = "#F3E8FF" if is_user else "#FCE7F3"
         border_rad = ft.BorderRadius(
             top_left=18,
             top_right=18,
@@ -280,28 +286,43 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        formatted_text = clean_and_format_latex(text)
+        contains_math = "$" in text or "\\" in text
 
-        text_widget = ft.Markdown(
-            value=formatted_text,
-            selectable=True,
-            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-            md_style_sheet=ft.MarkdownStyleSheet(
-                p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
-                code_text_style=ft.TextStyle(font_family="monospace", color=ft.Colors.PURPLE_900),
+        if contains_math and not is_user:
+            html_content = generate_mathjax_html(text, bubble_hex)
+            lines_count = text.count('\n') + 1
+            estimated_height = max(70, min(lines_count * 35 + 40, 450))
+
+            content_widget = ft.Container(
+                content=ft.WebView(
+                    html_content,
+                    expand=True,
+                ),
+                bgcolor=bubble_hex,
+                border_radius=border_rad,
+                width=page.width * 0.82 if (page.width and page.width > 0) else 300,
+                height=estimated_height,
             )
-        )
+        else:
+            text_widget = ft.Markdown(
+                value=text,
+                selectable=True,
+                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                md_style_sheet=ft.MarkdownStyleSheet(
+                    p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+                )
+            )
 
-        max_w = (page.width * 0.82) if (page.width and page.width > 0) else 290
-        
-        content_widget = ft.Container(
-            content=text_widget,
-            bgcolor=bubble_bg,
-            padding=ft.Padding(14, 10, 14, 10),
-            border_radius=border_rad,
-            width=max_w if len(text) > 35 else None,
-            rtl=True
-        )
+            max_w = (page.width * 0.82) if (page.width and page.width > 0) else 290
+            
+            content_widget = ft.Container(
+                content=text_widget,
+                bgcolor=bubble_hex,
+                padding=ft.Padding(14, 10, 14, 10),
+                border_radius=border_rad,
+                width=max_w if len(text) > 35 else None,
+                rtl=True
+            )
 
         return ft.Row(
             controls=[content_widget],
