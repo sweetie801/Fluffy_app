@@ -35,14 +35,36 @@ SYSTEM_PROMPT = """
 [قواعد التشغيل الأساسية لمنع الهلوسة]
 - أنت مساعد ذكي، دقيق، وصارم منطقياً. مهمتك الأولى هي الحفاظ على الحقيقة العلمية والواقعية، والاعتراف بالخطأ أو التناقض فوراً دون مواربة.
 
-[قاعدة تنسيق المعادلات الرياضية والفيزيائية]
-- اكتب القوانين والمعادلات بوضوح وتنسيق مرتب ومفهوم بالرموز العلمية الصريحة.
+[قاعدة صارمة لتنسيق المعادلات الرياضية والفيزيائية]
+- يمنع منعاً باتاً استخدام أكواد LaTeX مثل \\boxed, \\frac, \\pm, \\omega, \\cdot وغيرها.
+- اكتب القوانين والمعادلات بأسلوب نصي مباشر وواضح بالرموز النصية العادية، مثل:
+  * اكتب: F = -k × x (بدلاً من boxed)
+  * اكتب: v(t) = dx / dt
+  * اكتب: K = ½ m v² أو (1/2) m v²
+  * استخدم الأسس البسيطة (x², v²) والكسور النصية الشارحة المباشرة.
 
 [أسلوب العرض والنهايات والشخصية]
 1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
 2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة.
 3. اكتب بخطوات واضحة دون حشو، وأنهِ النص بعبارة ختامية رشيقة.
 """
+
+def clean_math_symbols(text: str) -> str:
+    """تنظيف أي رموز LaTeX متبقية وتحويلها لنص عربي ورياضي واضع."""
+    if not text:
+        return ""
+    # إزالة \\boxed{...}
+    text = re.sub(r'\\boxed\{([^}]+)\}', r'\1', text)
+    # تحويل \\frac{a}{b} إلى (a / b)
+    text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
+    # استبدال الرموز الشهيرة
+    text = text.replace(r'\pm', '±')
+    text = text.replace(r'\omega', 'ω')
+    text = text.replace(r'\cdot', '×')
+    text = text.replace(r'\times', '×')
+    text = text.replace(r'\[', '').replace(r'\]', '')
+    text = text.replace(r'\(', '').replace(r'\)', '')
+    return text
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -121,43 +143,46 @@ async def main(page: ft.Page):
         expand=True
     )
 
+    # حقل النص الداخلي
     user_input = ft.TextField(
         hint_text="Type a message...",
-        hint_style=ft.TextStyle(color="#F8C8DC"),  # نص الإدخال التوضيحي بالوردي الفاتح والناعم
+        hint_style=ft.TextStyle(color="#F8C8DC"),
         expand=True,
         multiline=True,
         min_lines=1,
         max_lines=4,
-        border_radius=25,
-        border_color=ft.Colors.TRANSPARENT,
-        focused_border_color=ft.Colors.TRANSPARENT,
+        border=ft.InputBorder.NONE,
         cursor_color="#F8C8DC",
         selection_color=ft.Colors.PINK_100,
-        content_padding=ft.Padding(16, 12, 16, 12),
-        bgcolor=ft.Colors.WHITE,
+        content_padding=ft.Padding(16, 10, 16, 10),
+        bgcolor=ft.Colors.TRANSPARENT,
     )
 
-    # حاوية مع إطار متدرج يطابق ألوان الأشعة القوسية
+    # إطار صندوق الإدخال المتدرج
     input_box_container = ft.Container(
-        content=user_input,
+        content=ft.Container(
+            content=user_input,
+            bgcolor=ft.Colors.WHITE,
+            border_radius=23,
+        ),
         expand=True,
         border_radius=25,
-        padding=2,  # سمك الإطار المتدرج
+        padding=1.8,
         gradient=ft.LinearGradient(
             begin=ft.Alignment(-1.0, 0.0),
             end=ft.Alignment(1.0, 0.0),
             colors=[
-                "#D8D6DF",  # رمادي ناعم
-                "#C8C6D7",  # بنفسجي رمادي
-                "#DCD0FF",  # بنفسجي فاتح
-                "#F8C8DC",  # وردي قطني
+                "#ECEBF0",
+                "#E6E1F5",
+                "#F3E5F5",
+                "#F8C8DC",
             ],
         )
     )
 
     send_button = ft.IconButton(
         icon=ft.Icons.SEND_ROUNDED,
-        icon_color="#F8C8DC",  # لون زر الإرسال وردي فاتح وناعم
+        icon_color="#F8C8DC",
         icon_size=26,
     )
 
@@ -182,19 +207,20 @@ async def main(page: ft.Page):
         expand=True
     )
 
+    # خلفية الشاشة
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
             center=ft.Alignment(0.0, 1.05),
-            radius=0.85,
+            radius=0.70,
             colors=[
-                "#D8D6DF",
-                "#C8C6D7",
-                "#DCD0FF",
+                "#ECEBF0",
+                "#E6E1F5",
+                "#F3E5F5",
                 "#F8C8DC",
-                "#FAF4F8",
+                "#FCF0F5",
                 "#FFFFFF",
             ],
-            stops=[0.0, 0.15, 0.35, 0.60, 0.80, 1.0]
+            stops=[0.0, 0.12, 0.28, 0.55, 0.78, 1.0]
         ),
         expand=True
     )
@@ -233,7 +259,9 @@ async def main(page: ft.Page):
     bottom_area.visible = True
     page.update()
 
+    # إنشاء فقاعة الرسالة مع حل تداخل النصوص واقتطاعها
     def create_message_bubble(text, is_user=True):
+        cleaned_text = clean_math_symbols(text)
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
         border_rad = ft.BorderRadius(
@@ -244,7 +272,7 @@ async def main(page: ft.Page):
         )
 
         text_widget = ft.Markdown(
-            value=text,
+            value=cleaned_text,
             selectable=True,
             extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
             md_style_sheet=ft.MarkdownStyleSheet(
@@ -252,30 +280,36 @@ async def main(page: ft.Page):
             )
         )
 
+        # تحسين الحاوية لمنع التداخل أو الخروج عن حدود الشاشة
         content_widget = ft.Container(
             content=text_widget,
             bgcolor=bubble_bg,
-            padding=ft.Padding(12, 8, 12, 8),
+            padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
+            max_width=page.width * 0.82 if page.width else 310,  # احتواء العرض بنسبة ممتازة
+            rtl=True
         )
 
-        return ft.Row(controls=[content_widget], alignment=alignment)
+        return ft.Row(
+            controls=[content_widget],
+            alignment=alignment,
+        )
 
+    # إنشاء دائرة التفكير بتدرجها المطلوب (يمين رمادي خفيف -> بنفسجي فاتح -> يسار وردي)
     def create_thinking_circle():
         circle_container = ft.Container(
             width=23,
             height=23,
             shape=ft.BoxShape.CIRCLE,
-            gradient=ft.RadialGradient(
-                center=ft.Alignment(0.0, 0.0),
-                radius=0.9,
+            gradient=ft.LinearGradient(
+                begin=ft.Alignment(1.0, 0.0),
+                end=ft.Alignment(-1.0, 0.0),
                 colors=[
-                    "#D8D6DF",
-                    "#C8C6D7",
-                    "#DCD0FF",
+                    "#F0EFF2",
+                    "#E3E0EE",
                     "#F8C8DC",
                 ],
-                stops=[0.0, 0.3, 0.6, 1.0]
+                stops=[0.0, 0.5, 1.0]
             ),
             scale=0.85,
             animate_scale=ft.Animation(650, ft.AnimationCurve.EASE_IN_OUT),
