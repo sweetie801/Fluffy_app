@@ -190,18 +190,57 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج المتوازن والمتوسط (الحل الوسط)
-    background_gradient = ft.Container(
-        gradient=ft.RadialGradient(
-            center=ft.Alignment(0.0, 1.05),
-            radius=0.85,
-            colors=[
-                "#F7B7D2",
-                "#FCDCEA",
-                "#FFFFFF",
-            ],
-            stops=[0.0, 0.45, 1.0]
-        ),
+    # التدرج المقعر المدموج بالألوان الفاخرة (وردي ناعم، رمادي بنفسجي، رمادي ناعم، وأبيض)
+    background_gradient = ft.Stack(
+        [
+            # 1. الخلفية البيضاء الأساسية
+            ft.Container(bgcolor=ft.Colors.WHITE, expand=True),
+            
+            # 2. طبقة رمادية ناعمة مائلة للبنفسجي في القاعدة لدمج الحواف
+            ft.Container(
+                gradient=ft.LinearGradient(
+                    begin=ft.Alignment(0.0, -1.0),
+                    end=ft.Alignment(0.0, 1.0),
+                    colors=[
+                        ft.Colors.TRANSPARENT,
+                        "#F3F2F7",
+                        "#E8E5EE",
+                    ],
+                    stops=[0.6, 0.85, 1.0],
+                ),
+                expand=True,
+            ),
+
+            # 3. توهج القوس الأيسر (وردي ناعم)
+            ft.Container(
+                gradient=ft.RadialGradient(
+                    center=ft.Alignment(-1.2, 1.2),
+                    radius=1.0,
+                    colors=[
+                        "#F8C0D8",
+                        "#EADBEE",
+                        ft.Colors.TRANSPARENT,
+                    ],
+                    stops=[0.0, 0.55, 1.0],
+                ),
+                expand=True,
+            ),
+            
+            # 4. توهج القوس الأيمن (وردي ناعم)
+            ft.Container(
+                gradient=ft.RadialGradient(
+                    center=ft.Alignment(1.2, 1.2),
+                    radius=1.0,
+                    colors=[
+                        "#F8C0D8",
+                        "#EADBEE",
+                        ft.Colors.TRANSPARENT,
+                    ],
+                    stops=[0.0, 0.55, 1.0],
+                ),
+                expand=True,
+            ),
+        ],
         expand=True
     )
 
@@ -340,10 +379,9 @@ async def main(page: ft.Page):
             loop = asyncio.get_running_loop()
             
             def call_groq():
-                # تم تغيير اسم النموذج إلى النموذج الصحيح والمستقر llama3-70b-8192
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama3-70b-8192",
+                    model="openai/gpt-oss-120b",
                     temperature=0.7,
                     top_p=0.9,
                 )
