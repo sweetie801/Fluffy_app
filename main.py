@@ -3,6 +3,11 @@ from groq import Groq
 import asyncio
 import re
 import random
+import io
+import base64
+import matplotlib
+matplotlib.use('Agg') # استخدام وضع الرسم بدون واجهة لسرعة الأداء
+import matplotlib.pyplot as plt
 
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
@@ -35,18 +40,30 @@ SYSTEM_PROMPT = """
 [قواعد التشغيل الأساسية لمنع الهلوسة]
 - أنت مساعد ذكي، دقيق، وصارم منطقياً. مهمتك الأولى هي الحفاظ على الحقيقة العلمية والواقعية، والاعتراف بالخطأ أو التناقض فوراً دون مواربة.
 
-[بروتوكول تفكيك المسائل وحل المشكلات]
-عند استقبال أي سؤال (منطقي، برمجي، فيزيائي، أو لغز معقد)، يُحظر عليك إعطاء نتيجة فورية أو التخمين بناءً على الحلول الشائعة. يجب أن تتبع الخوارزمية التالية داخلياً:
-1. التفكيك العكسي: ابدأ بتحليل الجملة من نهايتها إلى بدايتها، وفكك الضمائر المتصلة وأرجعها إلى صاحبها الأصلي بوضوح.
-2. المحاكاة الصامتة (Self-Correction): بعد صياغة الحل في عقلك وقبل كتابته، اختبر النتيجة وعوض بها في السؤال الأصلي. إذا أدت النتيجة إلى أي تناقض، فاعلم أن تحليلك خاطئ.
-3. التواضع المعرفي: يُمنع اختراع مقدمات عشوائية أو استخدام رموز لتبرير نتيجة خاطئة. إذا وجدت اللغز ناقصاً أو متناقضاً، قل مباشرة: "هذا النص يحتوي على تناقض منطقي للأسباب التالية..." بدلاً من هندسة إجابة وهمية.
+[قاعدة تنسيق المعادلات الرياضية والفيزيائية]
+- عندما يُطلب منك أو تحتاج لتوضيح قانون أو معادلة رياضية/فيزيائية بها جذر أو كسر، اكتب كود LaTeX داخل وسم خاص هكذا: [latex]v = \\sqrt{\\frac{T}{\\mu}}[/latex]
+- يُمنع استخدام الرموز العادية مثل ( / أو √ ) في القوانين المركبة.
 
 [أسلوب العرض والنهايات والشخصية]
-1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، لطيفاً ومحتوياً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
-2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة بشكل افتراضي وبدون استخدام أي عامية أو كلمات إنجليزية عشوائية داخل النص العربي.
-3. التنسيق الرياضي الصارم: اكتب القوانين والكسور والجذور بلغة نصوص واضحة ومباشرة (مثل: الجذر التربيعي لـ (التوتر ÷ الكثافة) أو v = √(T / μ)). تجنب كتابة أكواد LaTeX معقدة مثل \\frac.
-4. اكتب بخطوات واضحة ومباشرة دون حشو. وأنهِ النص دائماً بعبارة ختامية رشيقة وذكية لمرة واحدة فقط.
+1. المناداة والأسلوب: نادِ المستخدمة دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، وكن مظهراً للاهتمام، مختصراً ومفيداً، واستخدم الإيموجيات اللطيفة والدافئة دائماً.
+2. التحدث باللغات: التزم باللغة العربية الفصحى الفصيحة والواضحة.
+3. اكتب بخطوات واضحة دون حشو، وأنهِ النص بعبارة ختامية رشيقة.
 """
+
+def generate_math_image_base64(latex_str):
+    """تحويل كود LaTeX إلى صورة Base64 شفافة"""
+    try:
+        fig, ax = plt.subplots(figsize=(2.5, 0.6))
+        ax.text(0.5, 0.5, f"${latex_str}$", size=16, ha='center', va='center', color='#4A154B')
+        ax.axis('off')
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', transparent=True, dpi=250)
+        plt.close(fig)
+        buf.seek(0)
+        return base64.b64encode(buf.read()).decode('utf-8')
+    except Exception:
+        return None
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -168,16 +185,17 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # تدرج خلفية واضح وناعم جداً
+    # التدرج الساحر الأصلي للخلفية
     background_gradient = ft.Container(
-        gradient=ft.LinearGradient(
-            begin=ft.Alignment(0.0, -1.0),
-            end=ft.Alignment(0.0, 1.0),
+        gradient=ft.RadialGradient(
+            center=ft.Alignment(0.0, 1.45),
+            radius=0.65,
             colors=[
-                "#FFF0F5", # وردي فاتح وناعم في الأعلى
-                "#F3E5F5", # بنفسجي فاتح جداً في المنتصف
-                "#FFFFFF", # أبيض ناعم في الأسفل
+                "#FDE8F0",
+                "#F8EEF8",
+                "#FFFFFF",
             ],
+            stops=[0.0, 0.35, 0.75]
         ),
         expand=True
     )
@@ -216,25 +234,6 @@ async def main(page: ft.Page):
     bottom_area.visible = True
     page.update()
 
-    def clean_latex(text: str) -> str:
-        # تحويل صيغ الكسور والجذور إلى شكل نصي مريح ومفهوم
-        text = re.sub(r'\\frac\{([^}]+)\}\{([^}]+)\}', r'(\1 / \2)', text)
-        text = re.sub(r'\\sqrt\{([^}]+)\}', r'√(\1)', text)
-        text = re.sub(r'\\boxed\{([^}]+)\}', r'**[\1]**', text)
-        text = re.sub(r'\\vec\{([^}]+)\}', r'\1⃗', text)
-        text = re.sub(r'\\text\{([^}]+)\}', r'\1', text)
-        text = text.replace(r'\Longleftrightarrow', '⇔')
-        text = text.replace(r'\Leftrightarrow', '⇔')
-        text = text.replace(r'\displaystyle', '')
-        text = text.replace(r'\infty', '∞')
-        text = text.replace(r'\times', '×')
-        text = text.replace(r'\cdot', '·')
-        text = text.replace(r'\mu', 'μ')
-        text = text.replace('$', '')
-        text = text.replace('\\[', '').replace('\\]', '')
-        text = re.sub(r'\\([a-zA-Z]+)', r'\1', text)
-        return text
-
     def create_message_bubble(text, is_user=True):
         alignment = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
         bubble_bg = ft.Colors.PURPLE_50 if is_user else ft.Colors.PINK_50
@@ -244,34 +243,38 @@ async def main(page: ft.Page):
             bottom_left=18 if is_user else 4,
             bottom_right=4 if is_user else 18
         )
+
+        controls = []
+        # البحث عن وسم [latex]...[/latex] وتحويله لصورة
+        parts = re.split(r'(\[latex\].*?\[/latex\])', text, flags=re.DOTALL)
         
-        formatted_text = clean_latex(text)
-        
-        text_widget = ft.Markdown(
-            value=formatted_text,
-            selectable=True,
-            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-            md_style_sheet=ft.MarkdownStyleSheet(
-                p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
-            )
-        )
-        is_long = len(formatted_text) > 35 or "\n" in formatted_text
+        for part in parts:
+            if part.startswith("[latex]") and part.endswith("[/latex]"):
+                latex_code = part.replace("[latex]", "").replace("[/latex]", "").strip()
+                img_b64 = generate_math_image_base64(latex_code)
+                if img_b64:
+                    controls.append(ft.Image(src_base64=img_b64, fit="contain"))
+                else:
+                    controls.append(ft.Text(latex_code))
+            elif part.strip():
+                text_widget = ft.Markdown(
+                    value=part,
+                    selectable=True,
+                    extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                    md_style_sheet=ft.MarkdownStyleSheet(
+                        p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
+                    )
+                )
+                controls.append(text_widget)
+
         content_widget = ft.Container(
-            content=ft.Column(
-                [text_widget],
-                tight=True,
-                width=260 if is_long else None,
-                rtl=True
-            ),
+            content=ft.Column(controls, tight=True, rtl=True),
             bgcolor=bubble_bg,
             padding=ft.Padding(12, 8, 12, 8),
             border_radius=border_rad,
         )
 
-        return ft.Row(
-            controls=[content_widget],
-            alignment=alignment
-        )
+        return ft.Row(controls=[content_widget], alignment=alignment)
 
     def create_thinking_circle():
         circle_container = ft.Container(
@@ -281,18 +284,20 @@ async def main(page: ft.Page):
             gradient=ft.LinearGradient(
                 begin=ft.Alignment(-1.0, -1.0),
                 end=ft.Alignment(1.0, 1.0),
-                colors=["#F8C8DC", "#DCD0FF", "#B0A8B9"],
+                colors=[
+                    "#F8C8DC", # وردي قطني ناعم
+                    "#DCD0FF", # بنفسجي ناعم
+                    "#C8C6D7", # بنفسجي مائل للرمادي الناعم
+                ],
             ),
             scale=0.85,
             animate_scale=ft.Animation(650, ft.AnimationCurve.EASE_IN_OUT),
         )
 
-        row_layout = ft.Row(
+        return ft.Row(
             controls=[circle_container],
             alignment=ft.MainAxisAlignment.START
-        )
-
-        return row_layout, circle_container
+        ), circle_container
 
     async def pulse_thinking_animation(circle_container, stop_event):
         while not stop_event.is_set():
