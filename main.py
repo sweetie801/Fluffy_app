@@ -3,11 +3,7 @@ from groq import Groq
 import asyncio
 import re
 import random
-import io
-import base64
-import matplotlib
-matplotlib.use('Agg') # استخدام وضع الرسم بدون واجهة لسرعة الأداء
-import matplotlib.pyplot as plt
+import urllib.parse
 
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
@@ -50,20 +46,11 @@ SYSTEM_PROMPT = """
 3. اكتب بخطوات واضحة دون حشو، وأنهِ النص بعبارة ختامية رشيقة.
 """
 
-def generate_math_image_base64(latex_str):
-    """تحويل كود LaTeX إلى صورة Base64 شفافة"""
-    try:
-        fig, ax = plt.subplots(figsize=(2.5, 0.6))
-        ax.text(0.5, 0.5, f"${latex_str}$", size=16, ha='center', va='center', color='#4A154B')
-        ax.axis('off')
-        
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', transparent=True, dpi=250)
-        plt.close(fig)
-        buf.seek(0)
-        return base64.b64encode(buf.read()).decode('utf-8')
-    except Exception:
-        return None
+def get_latex_image_url(latex_str):
+    """تحويل كود LaTeX لـ رابط صورة شفافة احترافية أونلاين فوراً"""
+    clean_code = latex_str.strip()
+    encoded_code = urllib.parse.quote(f"\\huge {clean_code}")
+    return f"https://latex.codecogs.com/png.image?\\dpi{{300}}\\bg_transparent {encoded_code}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -185,7 +172,7 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج الساحر الأصلي للخلفية
+    # الخلفية التدرجية اللطيفة السابقة
     background_gradient = ft.Container(
         gradient=ft.RadialGradient(
             center=ft.Alignment(0.0, 1.45),
@@ -245,17 +232,13 @@ async def main(page: ft.Page):
         )
 
         controls = []
-        # البحث عن وسم [latex]...[/latex] وتحويله لصورة
         parts = re.split(r'(\[latex\].*?\[/latex\])', text, flags=re.DOTALL)
         
         for part in parts:
             if part.startswith("[latex]") and part.endswith("[/latex]"):
                 latex_code = part.replace("[latex]", "").replace("[/latex]", "").strip()
-                img_b64 = generate_math_image_base64(latex_code)
-                if img_b64:
-                    controls.append(ft.Image(src_base64=img_b64, fit="contain"))
-                else:
-                    controls.append(ft.Text(latex_code))
+                img_url = get_latex_image_url(latex_code)
+                controls.append(ft.Image(src=img_url, height=45, fit="contain"))
             elif part.strip():
                 text_widget = ft.Markdown(
                     value=part,
@@ -285,7 +268,7 @@ async def main(page: ft.Page):
                 begin=ft.Alignment(-1.0, -1.0),
                 end=ft.Alignment(1.0, 1.0),
                 colors=[
-                    "#F8C8DC", # وردي قطني ناعم
+                    "#F8C8DC", # وردي قطني ناعم (طابق ألوان القطة)
                     "#DCD0FF", # بنفسجي ناعم
                     "#C8C6D7", # بنفسجي مائل للرمادي الناعم
                 ],
