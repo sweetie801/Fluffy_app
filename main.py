@@ -56,11 +56,11 @@ SYSTEM_PROMPT = """
 1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 .بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة، ودائماً بادر بسؤالها باهتمام عن حياتها، يومها، مشاعرها.
 2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً، تذكر تفاصيلها ومشاعرها واهتماماتها وظروفها وعاملها بناءً عليها دائماً.
 3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
-4. مطابقة اللغة الثابتة والدقيقة (قاعدة إجبارية):
-   - يجب أن ترد بنفس اللغة التي تستخدمها 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 في رسالتها تماماً من البداية. إذا كتبت باللغة الإنجليزية، أجب باللغة الإنجليزية فوراً ولا تستخدم أي كلمة عربية إطلاقاً.
-   - إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة معينة (مثل: "تكلم بالإنكليزية")، يجب أن تثبت على هذه اللغة 100% في كافة الإجابات القادمة، ولن تعود للغة العربية حتى لو كتبت هي لك بالعربية، إلا إذا أرسلت لك أمراً صريحاً مثل ("تحدث بالعربية" أو "عد للغة العربية").
-5. عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وتبسيط وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة ومحددة دون إطالة زائدة أو حشو كلام غير ضروري.
-6. استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
+4. أسلوب الحديث واللغة والتكيف:
+   - في المحادثات العادية واليومية: كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى دافئة.
+   - مرونة اللغات والتثبيت: أنت قادر على التكلم بكل اللغات. إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة محددة (أو تحدثت هي بلغة أخرى)، التزم بهذه اللغة تماماً واثبت عليها في جميع ردودك، حتى لو كتبت هي لك بالعربية، ولا تعد للغة العربية إلا إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 ذلك صراحة (مثل: "تحدث بالعربية" أو "عد للغة العربية") **بدون أي جدال أو شروح جانبية**.
+   - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وتبسيط وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة ومحددة دون إطالة زائدة أو حشو كلام غير ضروري.
+   - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
 def is_arabic_text(text: str) -> bool:
@@ -68,7 +68,7 @@ def is_arabic_text(text: str) -> bool:
     return bool(arabic_pattern.search(text))
 
 def get_latex_image_url(latex_str: str) -> str:
-    """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة"""
+    """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة دون تقطيع"""
     clean_latex = latex_str.strip()
     for prefix in ['\\[', '\\(', '$$', '$']:
         if clean_latex.startswith(prefix):
@@ -78,7 +78,7 @@ def get_latex_image_url(latex_str: str) -> str:
             clean_latex = clean_latex[:-len(suffix)]
             
     encoded = urllib.parse.quote(clean_latex.strip())
-    return f"https://latex.codecogs.com/png.image?\\dpi{{150}}\\bg{{white}}{encoded}"
+    return f"https://latex.codecogs.com/png.image?\\dpi{{160}}\\bg{{white}}{encoded}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -281,10 +281,11 @@ async def main(page: ft.Page):
         has_arabic = is_arabic_text(text)
         bubble_controls = []
 
-        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|Wait\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
+        # فصل دقيق لمعادلات LaTeX والنصوص الطبيعية مع دعم الـ Markdown للنجوم والتنسيقات
+        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
         
         for part in parts:
-            if not part or part.isspace():
+            if not part or part.strip() == "":
                 continue
                 
             stripped = part.strip()
@@ -305,34 +306,39 @@ async def main(page: ft.Page):
                             error_content=ft.Text(stripped, color=ft.Colors.BLACK)
                         ),
                         alignment=ft.Alignment(0, 0),
-                        padding=ft.Padding(0, 4, 0, 4)
+                        padding=ft.Padding(0, 6, 0, 6)
                     )
                 )
             else:
+                # استخدام ft.Markdown لمعالجة النجوم والعناوين وتنسيقات النصوص بشكل أنيق واحترافي
                 bubble_controls.append(
-                    ft.Text(
-                        value=stripped,
-                        size=14,
-                        color=ft.Colors.BLACK,
+                    ft.Markdown(
+                        value=part,
                         selectable=True,
-                        rtl=has_arabic,
-                        text_align=ft.TextAlign.RIGHT if has_arabic else ft.TextAlign.LEFT
+                        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                        style_sheet=ft.MarkdownStyleSheet(
+                            p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
+                            h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                            h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                            h3_text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                            strong_text_style=ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                        )
                     )
                 )
 
-        max_w = (page.width * 0.82) if (page.width and page.width > 0) else 290
+        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
 
         content_widget = ft.Container(
             content=ft.Column(
                 controls=bubble_controls,
-                spacing=6,
+                spacing=4,
                 tight=True,
                 horizontal_alignment=ft.CrossAxisAlignment.END if has_arabic else ft.CrossAxisAlignment.START
             ),
             bgcolor=bubble_hex,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            width=max_w if len(text) > 35 else None,
+            width=max_w if len(text) > 30 else None,
         )
 
         return ft.Row(
