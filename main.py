@@ -56,11 +56,11 @@ SYSTEM_PROMPT = """
 1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 .بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة، ودائماً بادر بسؤالها باهتمام عن حياتها، يومها، مشاعرها.
 2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً، تذكر تفاصيلها ومشاعرها واهتماماتها وظروفها وعاملها بناءً عليها دائماً.
 3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
-4. أسلوب الحديث واللغة والتكيف:
-   - في المحادثات العادية واليومية: كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى دافئة.
-   - مرونة اللغات والتثبيت: أنت قادر على التكلم بكل اللغات. إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة محددة (أو تحدثت هي بلغة أخرى)، التزم بهذه اللغة تماماً واثبت عليها في جميع ردودك، حتى لو كتبت هي لك بالعربية، ولا تعد للغة العربية إلا إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 ذلك صراحة (مثل: "تحدث بالعربية" أو "عد للغة العربية").
-   - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وتبسيط وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة ومحددة دون إطالة زائدة أو حشو كلام غير ضروري.
-   - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
+4. مطابقة اللغة الثابتة والدقيقة (قاعدة إجبارية):
+   - يجب أن ترد بنفس اللغة التي تستخدمها 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 في رسالتها تماماً من البداية. إذا كتبت باللغة الإنجليزية، أجب باللغة الإنجليزية فوراً ولا تستخدم أي كلمة عربية إطلاقاً.
+   - إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة معينة (مثل: "تكلم بالإنكليزية")، يجب أن تثبت على هذه اللغة 100% في كافة الإجابات القادمة، ولن تعود للغة العربية حتى لو كتبت هي لك بالعربية، إلا إذا أرسلت لك أمراً صريحاً مثل ("تحدث بالعربية" أو "عد للغة العربية").
+5. عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وتبسيط وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة ومحددة دون إطالة زائدة أو حشو كلام غير ضروري.
+6. استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
 def is_arabic_text(text: str) -> bool:
@@ -69,8 +69,15 @@ def is_arabic_text(text: str) -> bool:
 
 def get_latex_image_url(latex_str: str) -> str:
     """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة"""
-    clean_latex = latex_str.strip().strip('$')
-    encoded = urllib.parse.quote(clean_latex)
+    clean_latex = latex_str.strip()
+    for prefix in ['\\[', '\\(', '$$', '$']:
+        if clean_latex.startswith(prefix):
+            clean_latex = clean_latex[len(prefix):]
+    for suffix in ['\\]', '\\)', '$$', '$']:
+        if clean_latex.endswith(suffix):
+            clean_latex = clean_latex[:-len(suffix)]
+            
+    encoded = urllib.parse.quote(clean_latex.strip())
     return f"https://latex.codecogs.com/png.image?\\dpi{{150}}\\bg{{white}}{encoded}"
 
 async def main(page: ft.Page):
@@ -274,20 +281,28 @@ async def main(page: ft.Page):
         has_arabic = is_arabic_text(text)
         bubble_controls = []
 
-        parts = re.split(r'(\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
+        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|Wait\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
         
         for part in parts:
             if not part or part.isspace():
                 continue
                 
-            if (part.startswith('$$') and part.endswith('$$')) or (part.startswith('$') and part.endswith('$')):
-                math_url = get_latex_image_url(part)
+            stripped = part.strip()
+            is_math = (
+                (stripped.startswith('\\[') and stripped.endswith('\\]')) or
+                (stripped.startswith('\\(') and stripped.endswith('\\)')) or
+                (stripped.startswith('$$') and stripped.endswith('$$')) or
+                (stripped.startswith('$') and stripped.endswith('$'))
+            )
+
+            if is_math:
+                math_url = get_latex_image_url(stripped)
                 bubble_controls.append(
                     ft.Container(
                         content=ft.Image(
                             src=math_url,
                             fit="contain",
-                            error_content=ft.Text(part, color=ft.Colors.BLACK)
+                            error_content=ft.Text(stripped, color=ft.Colors.BLACK)
                         ),
                         alignment=ft.Alignment(0, 0),
                         padding=ft.Padding(0, 4, 0, 4)
@@ -296,7 +311,7 @@ async def main(page: ft.Page):
             else:
                 bubble_controls.append(
                     ft.Text(
-                        value=part.strip(),
+                        value=stripped,
                         size=14,
                         color=ft.Colors.BLACK,
                         selectable=True,
