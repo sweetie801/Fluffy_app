@@ -4,10 +4,7 @@ import httpx
 import asyncio
 import re
 import random
-import io
-import matplotlib
-matplotlib.use('Agg')  # لضمان عدم فتح نوافذ رسومية أثناء المعالجة
-import matplotlib.pyplot as plt
+import urllib.parse
 
 GROQ_API_KEY = "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"
 
@@ -52,53 +49,29 @@ SYSTEM_PROMPT = """
 
 [أسلوب التفكير والتحليل]
 - تجنب الهلوسة واختراع معلومات غير صحيحة مطلقاً.
-- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة من النهاية إلى البداية للتأكد من صحة النتيجة.
-- إذا كان هناك أي تناقض في المسألة أو السؤال، اذكر ذلك بوضوح ومباشرة، وإذا صححتكَ المستخدمة لا تجادل بل تقبل أنك مخطئ واعترف بوضوح.
+- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة من النهاية إلى البداية للتأكد من صحة النتيجة ولا تستخدم الرموز للشرح مثل (أ ب س).
+- إذا كان هناك أي تناقض في المسألة أو السؤال، اذكر ذلك بوضوح ومباشرة دون استخدام كلمات أو مصطلحات غريبة أو معقدة، إذا صححتكَ المستخدمة لا تجادل بل تقبل أنك مخطئ واعترف بوضوح.
 
 [القواعد والتعليمات]
-1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة.
-2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً.
-3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك.
-4. أسلوب الحديث واللغة:
+1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 .بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة، ودائماً بادر بسؤالها باهتمام عن حياتها، يومها، مشاعرها.
+2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً، تذكر تفاصيلها ومشاعرها واهتماماتها وظروفها وعاملها بناءً عليها دائماً.
+3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
+4. أسلوب الحديث واللغة والتكيف:
    - في المحادثات العادية واليومية: كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى دافئة.
-   - مرونة اللغات: أنت قادر على التكلم بكل اللغات. إذا تحدثت معك بلغة أخرى أو طلبت منك التحدث بلغة محددة، تجيبها وتستمر بالحديث بنفس اللغة حتى تطلب منك العودة للعربية أو تتحدث هي بالعربية مجدداً.
-   - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بكل دقة وتفصيل وعمق، وبسط الأفكار خطوة بخطوة.
+   - مرونة اللغات والتثبيت: أنت قادر على التكلم بكل اللغات. إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة محددة (أو تحدثت هي بلغة أخرى)، التزم بهذه اللغة تماماً واثبت عليها في جميع ردودك، حتى لو كتبت هي لك بالعربية، ولا تعد للغة العربية إلا إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 ذلك صراحة (مثل: "تحدث بالعربية" أو "عد للغة العربية").
+   - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وتبسيط وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة ومحددة دون إطالة زائدة أو حشو كلام غير ضروري.
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
-5. كتابة المعادلات الرياضية والفيزيائية:
-   - اكتب المعادلات الرياضية بصيغة LaTeX واضحة بين رمزي $$ مثل:
-     $$ P = \\frac{F}{A} $$
 """
 
 def is_arabic_text(text: str) -> bool:
     arabic_pattern = re.compile(r'[\u0600-\u06FF]')
     return bool(arabic_pattern.search(text))
 
-def latex_to_base64(latex_str: str) -> str:
-    """تحويل صيغة LaTeX إلى صورة Base64 عالية الجودة بدون تعارضات"""
-    try:
-        fig, ax = plt.subplots(figsize=(4, 0.8), dpi=200)
-        ax.axis('off')
-        fig.patch.set_alpha(0.0)
-        ax.patch.set_alpha(0.0)
-        
-        # إضافة رموز $ إذا لم تكن موجودة
-        clean_latex = latex_str.strip()
-        if not clean_latex.startswith('$'):
-            clean_latex = f"${clean_latex}$"
-            
-        ax.text(0.5, 0.5, clean_latex, size=16, color='black',
-                ha='center', va='center')
-        
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)
-        plt.close(fig)
-        
-        buf.seek(0)
-        import base64
-        return base64.b64encode(buf.read()).decode('utf-8')
-    except Exception:
-        plt.close('all')
-        return None
+def get_latex_image_url(latex_str: str) -> str:
+    """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة"""
+    clean_latex = latex_str.strip().strip('$')
+    encoded = urllib.parse.quote(clean_latex)
+    return f"https://latex.codecogs.com/png.image?\\dpi{{150}}\\bg{{white}}{encoded}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -307,25 +280,19 @@ async def main(page: ft.Page):
             if not part or part.isspace():
                 continue
                 
-            if part.startswith('$') and part.endswith('$'):
-                math_code = part.strip('$').strip()
-                img_base64 = latex_to_base64(math_code)
-                
-                if img_base64:
-                    bubble_controls.append(
-                        ft.Container(
-                            content=ft.Image(
-                                src_base64=img_base64,
-                                fit="contain"
-                            ),
-                            alignment=ft.Alignment(0, 0),
-                            padding=ft.Padding(0, 4, 0, 4)
-                        )
+            if (part.startswith('$$') and part.endswith('$$')) or (part.startswith('$') and part.endswith('$')):
+                math_url = get_latex_image_url(part)
+                bubble_controls.append(
+                    ft.Container(
+                        content=ft.Image(
+                            src=math_url,
+                            fit="contain",
+                            error_content=ft.Text(part, color=ft.Colors.BLACK)
+                        ),
+                        alignment=ft.Alignment(0, 0),
+                        padding=ft.Padding(0, 4, 0, 4)
                     )
-                else:
-                    bubble_controls.append(
-                        ft.Text(value=part, size=14, color=ft.Colors.BLACK)
-                    )
+                )
             else:
                 bubble_controls.append(
                     ft.Text(
