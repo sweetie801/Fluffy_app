@@ -62,6 +62,30 @@ SYSTEM_PROMPT = """
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
+def clean_math_text(text: str) -> str:
+    text = text.replace(r'\frac', '')
+    text = text.replace(r'\int', '∫')
+    text = text.replace(r'\sum', '∑')
+    text = text.replace(r'\alpha', 'α')
+    text = text.replace(r'\beta', 'β')
+    text = text.replace(r'\omega', 'ω')
+    text = text.replace(r'\Omega', 'Ω')
+    text = text.replace(r'\phi', 'φ')
+    text = text.replace(r'\Phi', 'Φ')
+    text = text.replace(r'\rho', 'ρ')
+    text = text.replace(r'\theta', 'θ')
+    text = text.replace(r'\pi', 'π')
+    
+    text = re.sub(r'\\\[(.*?)\\\]', r'\1', text, flags=re.DOTALL)
+    text = re.sub(r'\\\((.*?)\\\)', r'\1', text, flags=re.DOTALL)
+    text = re.sub(r'\$\$', '', text)
+    text = re.sub(r'\$', '', text)
+    
+    text = text.replace('d^2', 'd²').replace('dt^2', 'dt²')
+    text = text.replace('0^2', '₀²').replace('0', '₀')
+    
+    return text
+
 def is_arabic_text(text: str) -> bool:
     arabic_pattern = re.compile(r'[\u0600-\u06FF]')
     return bool(arabic_pattern.search(text))
@@ -264,14 +288,11 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        has_arabic = is_arabic_text(text)
-
-        # تنظيف أي رموز تشويه قد تظهر بالخطأ
-        cleaned_text = re.sub(r'#{2,}', '', text)
+        processed_text = clean_math_text(text) if not is_user else text
 
         content_widget = ft.Container(
             content=ft.Markdown(
-                value=cleaned_text,
+                value=processed_text,
                 selectable=True,
                 extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
                 md_style_sheet=ft.MarkdownStyleSheet(
@@ -285,11 +306,16 @@ async def main(page: ft.Page):
             bgcolor=bubble_hex,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            width=(page.width * 0.85) if (page.width and page.width > 0) else 300,
+        )
+
+        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
+        constrained_bubble = ft.Container(
+            content=content_widget,
+            constraints=ft.BoxConstraints(maxWidth=max_w)
         )
 
         return ft.Row(
-            controls=[content_widget],
+            controls=[constrained_bubble],
             alignment=align_value
         )
 
