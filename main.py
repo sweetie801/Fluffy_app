@@ -7,11 +7,11 @@ import random
 
 GROQ_API_KEY = "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"
 
-# إذا كان Groq محظوراً لديكِ، استبدليIP البروكسي هنا بآخر يعمل
+# إنشاء عميل شبكة مع مهلة زمنية محددة
+# ملاحظة: إذا كان الاتصال يعمل بدون بروكسي احذفي سطر proxy
 try:
     custom_http_client = httpx.Client(
-        proxy="http://43.134.204.223:3128", 
-        timeout=60.0
+        timeout=httpx.Timeout(30.0, connect=10.0)
     )
     client = Groq(
         api_key=GROQ_API_KEY,
@@ -357,12 +357,18 @@ async def main(page: ft.Page):
                     top_p=0.9,
                 )
 
-            response = await loop.run_in_executor(None, call_groq)
+            # تحديد مهلة اقصاها 20 ثانية حتى لا يعلق الزر
+            response = await asyncio.wait_for(
+                loop.run_in_executor(None, call_groq),
+                timeout=20.0
+            )
             raw_reply = response.choices[0].message.content
             fluffy_reply = re.sub(r'<think>.*?</think>', '', raw_reply, flags=re.DOTALL).strip()
             
             conversation_history.append({"role": "assistant", "content": fluffy_reply})
             
+        except asyncio.TimeoutError:
+            fluffy_reply = "استغرق الاتصال وقتاً طويلاً جداً. يرجى التأكد من الاتصال بالإنترنت والمحاولة مجدداً 🌸"
         except Exception as err:
             err_str = str(err)
             if "429" in err_str:
