@@ -1,10 +1,13 @@
 import flet as ft
-import flet_math as ftm
 from groq import Groq
 import httpx
 import asyncio
 import re
 import random
+import io
+import matplotlib
+matplotlib.use('Agg')  # لضمان عدم فتح نوافذ رسومية أثناء المعالجة
+import matplotlib.pyplot as plt
 
 GROQ_API_KEY = "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"
 
@@ -62,13 +65,40 @@ SYSTEM_PROMPT = """
    - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بكل دقة وتفصيل وعمق، وبسط الأفكار خطوة بخطوة.
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 5. كتابة المعادلات الرياضية والفيزيائية:
-   - اكتب المعادلات الرياضية بصيغة LaTeX واضحة ومستقلة بين رمزي $$ مثل:
+   - اكتب المعادلات الرياضية بصيغة LaTeX واضحة بين رمزي $$ مثل:
      $$ P = \\frac{F}{A} $$
 """
 
 def is_arabic_text(text: str) -> bool:
     arabic_pattern = re.compile(r'[\u0600-\u06FF]')
     return bool(arabic_pattern.search(text))
+
+def latex_to_base64(latex_str: str) -> str:
+    """تحويل صيغة LaTeX إلى صورة Base64 عالية الجودة بدون تعارضات"""
+    try:
+        fig, ax = plt.subplots(figsize=(4, 0.8), dpi=200)
+        ax.axis('off')
+        fig.patch.set_alpha(0.0)
+        ax.patch.set_alpha(0.0)
+        
+        # إضافة رموز $ إذا لم تكن موجودة
+        clean_latex = latex_str.strip()
+        if not clean_latex.startswith('$'):
+            clean_latex = f"${clean_latex}$"
+            
+        ax.text(0.5, 0.5, clean_latex, size=16, color='black',
+                ha='center', va='center')
+        
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png', bbox_inches='tight', pad_inches=0.1, transparent=True)
+        plt.close(fig)
+        
+        buf.seek(0)
+        import base64
+        return base64.b64encode(buf.read()).decode('utf-8')
+    except Exception:
+        plt.close('all')
+        return None
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -279,16 +309,23 @@ async def main(page: ft.Page):
                 
             if part.startswith('$') and part.endswith('$'):
                 math_code = part.strip('$').strip()
-                bubble_controls.append(
-                    ft.Container(
-                        content=ftm.Math(
-                            latex=math_code,
-                            text_style=ft.TextStyle(size=16, color=ft.Colors.BLACK)
-                        ),
-                        alignment=ft.Alignment(0, 0),
-                        padding=ft.Padding(0, 4, 0, 4)
+                img_base64 = latex_to_base64(math_code)
+                
+                if img_base64:
+                    bubble_controls.append(
+                        ft.Container(
+                            content=ft.Image(
+                                src_base64=img_base64,
+                                fit="contain"
+                            ),
+                            alignment=ft.Alignment(0, 0),
+                            padding=ft.Padding(0, 4, 0, 4)
+                        )
                     )
-                )
+                else:
+                    bubble_controls.append(
+                        ft.Text(value=part, size=14, color=ft.Colors.BLACK)
+                    )
             else:
                 bubble_controls.append(
                     ft.Text(
