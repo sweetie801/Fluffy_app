@@ -7,17 +7,18 @@ import random
 
 GROQ_API_KEY = "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"
 
-# إنشاء عميل شبكة يتجاوز حظر بيانات الهاتف عبر البروكسي (تم تعديل proxy)
-custom_http_client = httpx.Client(
-    proxy="http://185.199.229.156:7492",
-    timeout=60.0
-)
-
-# الربط في كائن Groq
-client = Groq(
-    api_key=GROQ_API_KEY,
-    http_client=custom_http_client
-)
+# إذا كان Groq محظوراً لديكِ، استبدليIP البروكسي هنا بآخر يعمل
+try:
+    custom_http_client = httpx.Client(
+        proxy="http://43.134.204.223:3128", 
+        timeout=60.0
+    )
+    client = Groq(
+        api_key=GROQ_API_KEY,
+        http_client=custom_http_client
+    )
+except Exception:
+    client = Groq(api_key=GROQ_API_KEY)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
