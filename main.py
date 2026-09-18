@@ -350,14 +350,14 @@ async def main(page: ft.Page):
             def call_groq():
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.1-70b-versatile",
+                    model="openai/gpt-oss-120b",
                     temperature=0.7,
                     top_p=0.9,
                 )
 
             response = await asyncio.wait_for(
                 loop.run_in_executor(None, call_groq),
-                timeout=20.0
+                timeout=25.0
             )
             raw_reply = response.choices[0].message.content
             fluffy_reply = re.sub(r'<think>.*?</think>', '', raw_reply, flags=re.DOTALL).strip()
