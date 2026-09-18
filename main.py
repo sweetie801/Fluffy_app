@@ -2,9 +2,8 @@ import flet as ft
 from groq import Groq
 import httpx
 import asyncio
-import re
 import random
-import urllib.parse
+import re
 
 GROQ_API_KEY = "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"
 
@@ -66,19 +65,6 @@ SYSTEM_PROMPT = """
 def is_arabic_text(text: str) -> bool:
     arabic_pattern = re.compile(r'[\u0600-\u06FF]')
     return bool(arabic_pattern.search(text))
-
-def get_latex_image_url(latex_str: str) -> str:
-    """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة دون تقطيع"""
-    clean_latex = latex_str.strip()
-    for prefix in ['\\[', '\\(', '$$', '$']:
-        if clean_latex.startswith(prefix):
-            clean_latex = clean_latex[len(prefix):]
-    for suffix in ['\\]', '\\)', '$$', '$']:
-        if clean_latex.endswith(suffix):
-            clean_latex = clean_latex[:-len(suffix)]
-            
-    encoded = urllib.parse.quote(clean_latex.strip())
-    return f"https://latex.codecogs.com/png.image?\\dpi{{160}}\\bg{{white}}{encoded}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -279,66 +265,27 @@ async def main(page: ft.Page):
         )
 
         has_arabic = is_arabic_text(text)
-        bubble_controls = []
 
-        # فصل دقيق لمعادلات LaTeX والنصوص الطبيعية مع دعم الـ Markdown للنجوم والتنسيقات
-        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
-        
-        for part in parts:
-            if not part or part.strip() == "":
-                continue
-                
-            stripped = part.strip()
-            is_math = (
-                (stripped.startswith('\\[') and stripped.endswith('\\]')) or
-                (stripped.startswith('\\(') and stripped.endswith('\\)')) or
-                (stripped.startswith('$$') and stripped.endswith('$$')) or
-                (stripped.startswith('$') and stripped.endswith('$'))
-            )
-
-            if is_math:
-                math_url = get_latex_image_url(stripped)
-                bubble_controls.append(
-                    ft.Container(
-                        content=ft.Image(
-                            src=math_url,
-                            fit="contain",
-                            error_content=ft.Text(stripped, color=ft.Colors.BLACK)
-                        ),
-                        alignment=ft.Alignment(0, 0),
-                        padding=ft.Padding(0, 6, 0, 6)
-                    )
-                )
-            else:
-                # استخدام ft.Markdown لمعالجة النجوم والعناوين وتنسيقات النصوص بشكل أنيق واحترافي
-                bubble_controls.append(
-                    ft.Markdown(
-                        value=part,
-                        selectable=True,
-                        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                        md_style_sheet=ft.MarkdownStyleSheet(
-                            p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
-                            h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                            h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                            h3_text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                            strong_text_style=ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                        )
-                    )
-                )
-
-        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
+        # تنظيف أي رموز تشويه قد تظهر بالخطأ
+        cleaned_text = re.sub(r'#{2,}', '', text)
 
         content_widget = ft.Container(
-            content=ft.Column(
-                controls=bubble_controls,
-                spacing=4,
-                tight=True,
-                horizontal_alignment=ft.CrossAxisAlignment.END if has_arabic else ft.CrossAxisAlignment.START
+            content=ft.Markdown(
+                value=cleaned_text,
+                selectable=True,
+                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                md_style_sheet=ft.MarkdownStyleSheet(
+                    p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
+                    h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                    h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                    h3_text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                    strong_text_style=ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                )
             ),
             bgcolor=bubble_hex,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            width=max_w if len(text) > 30 else None,
+            width=(page.width * 0.85) if (page.width and page.width > 0) else 300,
         )
 
         return ft.Row(
