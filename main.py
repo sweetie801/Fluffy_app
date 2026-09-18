@@ -7,8 +7,6 @@ import random
 
 GROQ_API_KEY = "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"
 
-# إنشاء عميل شبكة مع مهلة زمنية محددة
-# ملاحظة: إذا كان الاتصال يعمل بدون بروكسي احذفي سطر proxy
 try:
     custom_http_client = httpx.Client(
         timeout=httpx.Timeout(30.0, connect=10.0)
@@ -352,12 +350,11 @@ async def main(page: ft.Page):
             def call_groq():
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="llama-3.3-70b-versatile",
+                    model="llama-3.1-70b-versatile",
                     temperature=0.7,
                     top_p=0.9,
                 )
 
-            # تحديد مهلة اقصاها 20 ثانية حتى لا يعلق الزر
             response = await asyncio.wait_for(
                 loop.run_in_executor(None, call_groq),
                 timeout=20.0
