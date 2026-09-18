@@ -1,11 +1,23 @@
 import flet as ft
 from groq import Groq
+import httpx
 import asyncio
 import re
 import random
 
 GROQ_API_KEY = "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"
-client = Groq(api_key=GROQ_API_KEY)
+
+# إنشاء عميل شبكة يتجاوز حظر بيانات الهاتف عبر البروكسي
+custom_http_client = httpx.Client(
+    proxies="http://185.199.229.156:7492",
+    timeout=60.0
+)
+
+# الربط في كائن Groq
+client = Groq(
+    api_key=GROQ_API_KEY,
+    http_client=custom_http_client
+)
 
 IMAGE_URL = "https://i.postimg.cc/Vk7vpmxc/1000091096-removebg-preview.png"
 
@@ -37,55 +49,19 @@ SYSTEM_PROMPT = """
 
 [أسلوب التفكير والتحليل]
 - تجنب الهلوسة واختراع معلومات غير صحيحة مطلقاً.
-- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة من النهاية إلى البداية للتأكد من صحة النتيجة.
-- إذا كان هناك أي تناقض في المسألة أو السؤال، اذكر ذلك بوضوح ومباشرة دون استخدام كلمات أو مصطلحات غريبة أو معقدة.
+- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة من النهاية إلى البداية للتأكد من صحة النتيجة ولا تستخدم الرموز للشرح مثل (أ ب س).
+- إذا كان هناك أي تناقض في المسألة أو السؤال، اذكر ذلك بوضوح ومباشرة دون استخدام كلمات أو مصطلحات غريبة أو معقدة، إذا صححتكَ المستخدمة لا تجادل بل تقبل أنك مخطئ واعترف بوضوح.
 
 [القواعد والتعليمات]
-1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة.
+1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 .بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة، ودائماً بادر بسؤالها باهتمام عن حياتها، يومها، مشاعرها.
 2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً، تذكر تفاصيلها ومشاعرها واهتماماتها وظروفها وعاملها بناءً عليها دائماً.
 3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
 4. أسلوب الحديث واللغة:
-   - كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى بسيطة ودافئة، وكن قادر على التكلم بكل اللغات إذا طلبت منك.
+   - كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى دافئة، وكن قادر على التكلم بكل اللغات إذا طلبت منك.
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 5. كتابة المعادلات:
    - اكتب المعادلات الرياضية والفيزيائية بصيغة LaTeX القياسية (استخدم $$ للمعادلات المستقلة، و $ للمعادلات المدمجة مع النص).
 """
-
-def generate_mathjax_html(content: str, bg_color: str) -> str:
-    """توليد كود HTML يحتوي على محرك MathJax لرسم المعادلات بأناقة"""
-    formatted_content = content.replace('\n', '<br>')
-    
-    html_code = f"""
-    <!DOCTYPE html>
-    <html dir="rtl" lang="ar">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-        <style>
-            body {{
-                font-family: system-ui, -apple-system, sans-serif;
-                background-color: {bg_color};
-                color: #222222;
-                margin: 0;
-                padding: 12px;
-                direction: rtl;
-                font-size: 14px;
-                line-height: 1.6;
-            }}
-            .mjx-chtml {{
-                font-size: 110% !important;
-                color: #4A154B !important;
-            }}
-        </style>
-    </head>
-    <body>
-        {formatted_content}
-    </body>
-    </html>
-    """
-    return html_code
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -226,7 +202,6 @@ async def main(page: ft.Page):
         expand=True
     )
 
-    # التدرج اللونسي الموحد والناعم الخالي من أي تداخل أو ألوان داكنة
     background_gradient = ft.Container(
         gradient=ft.LinearGradient(
             begin=ft.Alignment(0.0, -1.0),
@@ -286,43 +261,25 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        contains_math = "$" in text or "\\" in text
-
-        if contains_math and not is_user:
-            html_content = generate_mathjax_html(text, bubble_hex)
-            lines_count = text.count('\n') + 1
-            estimated_height = max(70, min(lines_count * 35 + 40, 450))
-
-            content_widget = ft.Container(
-                content=ft.WebView(
-                    html_content,
-                    expand=True,
-                ),
-                bgcolor=bubble_hex,
-                border_radius=border_rad,
-                width=page.width * 0.82 if (page.width and page.width > 0) else 300,
-                height=estimated_height,
+        text_widget = ft.Markdown(
+            value=text,
+            selectable=True,
+            extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+            md_style_sheet=ft.MarkdownStyleSheet(
+                p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
             )
-        else:
-            text_widget = ft.Markdown(
-                value=text,
-                selectable=True,
-                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                md_style_sheet=ft.MarkdownStyleSheet(
-                    p_text_style=ft.TextStyle(size=14, height=1.4, color=ft.Colors.BLACK),
-                )
-            )
+        )
 
-            max_w = (page.width * 0.82) if (page.width and page.width > 0) else 290
-            
-            content_widget = ft.Container(
-                content=text_widget,
-                bgcolor=bubble_hex,
-                padding=ft.Padding(14, 10, 14, 10),
-                border_radius=border_rad,
-                width=max_w if len(text) > 35 else None,
-                rtl=True
-            )
+        max_w = (page.width * 0.82) if (page.width and page.width > 0) else 290
+        
+        content_widget = ft.Container(
+            content=text_widget,
+            bgcolor=bubble_hex,
+            padding=ft.Padding(14, 10, 14, 10),
+            border_radius=border_rad,
+            width=max_w if len(text) > 35 else None,
+            rtl=True
+        )
 
         return ft.Row(
             controls=[content_widget],
@@ -394,7 +351,7 @@ async def main(page: ft.Page):
             def call_groq():
                 return client.chat.completions.create(
                     messages=conversation_history,
-                    model="openai/gpt-oss-120b",
+                    model="llama-3.3-70b-versatile",
                     temperature=0.7,
                     top_p=0.9,
                 )
