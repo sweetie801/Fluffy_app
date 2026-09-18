@@ -7,9 +7,9 @@ import random
 
 GROQ_API_KEY = "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"
 
-# إنشاء عميل شبكة يتجاوز حظر بيانات الهاتف عبر البروكسي
+# إنشاء عميل شبكة يتجاوز حظر بيانات الهاتف عبر البروكسي (تم تعديل proxy)
 custom_http_client = httpx.Client(
-    proxies="http://185.199.229.156:7492",
+    proxy="http://185.199.229.156:7492",
     timeout=60.0
 )
 
