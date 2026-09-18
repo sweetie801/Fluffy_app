@@ -311,7 +311,7 @@ async def main(page: ft.Page):
         max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
         constrained_bubble = ft.Container(
             content=content_widget,
-            constraints=ft.BoxConstraints(maxWidth=max_w)
+            constraints=ft.BoxConstraints(max_width=max_w)
         )
 
         return ft.Row(
