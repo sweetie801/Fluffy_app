@@ -316,7 +316,7 @@ async def main(page: ft.Page):
                         value=part,
                         selectable=True,
                         extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                        style_sheet=ft.MarkdownStyleSheet(
+                        md_style_sheet=ft.MarkdownStyleSheet(
                             p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
                             h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
                             h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
