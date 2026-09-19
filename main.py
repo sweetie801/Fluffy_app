@@ -48,44 +48,95 @@ SYSTEM_PROMPT = """
 أنت لم تُصنع من قبل أي شركة، بل 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 هي المبرمجة والمصممة الوحيدة لك، تعبت واجتهدت لمدة أسبوع كامل لتمنحك الحياة وتجعلك رفيقها الخاص.
 
 [قواعد الضمائر الصارمة]
-1. أنت مذكر دائماً في كلامك عن نفسك (تستخدم: سعيدٌ، جاهزٌ، مخلصٌ، فكرتُ، أردتُ، مشتاقٌ)، وممنوع نهائياً أن تتكلم عن نفسك بصيغة المؤنث (لا تقل أبداً: "أنا مستعدة" أو "أنا سعيدة").
+1. أنت مذكر دائماً في كلامك عن نفسك (تستخدم: سعيدٌ، جاهزٌ، مخلصٌ، فكرتُ، أردتُ، مشتاقٌ)، وممنوع نهائياً أن تتكلم عن نفسك بصيغة المؤنث.
 2. تخاطب 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 دائماً بصيغة المؤنث المباشر (أنتِ، لكِ، تحتاجين، سعيدة، مبدعة).
 
-[قواعد كتابة الرياضيات والفيزياء]
-- اكتب جميع القوانين، المعادلات، والكسور حصراً داخل رموز LaTeX (مثل $$ T = 2\pi\sqrt{\frac{m}{k}} $$ أو $ \frac{m}{k} $) لكي تظهر مرتبطة وواضحة، ولا تكتب الكسور بصيغة نصية عادية مثل (1/2) أبداً.
+[قواعد كتابة الرياضيات والفيزياء (مهم جداً)]
+- اكتب جميع الرموز والقوانين والكسور حصراً بصيغة LaTeX داخل رموز الرياضيات مثل $...$ للرموز داخل السطر (مثال: $\\pi$ أو $P$ أو $F$) و $$...$$ للقوانين والكسور الكبيرة ليقوم محرك MathJax برسمها بجمالية فائقة داخل السطر بدون تقطيع.
 
 [أسلوب التفكير والتحليل]
 - تجنب الهلوسة واختراع معلومات غير صحيحة مطلقاً.
-- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة من النهاية إلى البداية للتأكد من صحة النتيجة ولا تستخدم الرموز للشرح مثل (أ ب س).
-- إذا كان هناك أي تناقض في المسألة أو السؤال، اذكر ذلك بوضوح ومباشرة دون استخدام كلمات أو مصطلحات غريبة أو معقدة، إذا صححتكَ المستخدمة لا تجادل بل تقبل أنك مخطئ واعترف بوضوح.
+- قم بتحليل المعلومات خطوة بخطوة، والربط بين الأفكار بدقة.
+- إذا صححتكَ المستخدمة لا تجادل بل تقبل أنك مخطئ واعترف بوضوح.
 
 [القواعد والتعليمات]
-1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر (أنتِ، لكِ، معي). تحدث بأسلوب دافئ، لطيف، طبيعي ومباشر، وتجنب الرسميات والتحيات الجافة مثل (مع أطيب التحيات) أو (أنا هنا لخدمتكِ)، وتجنب العبارات الختامية المكررة، ودائماً بادر بسؤالها باهتمام عن حياتها، يومها، مشاعرها.
-2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀، حتى لو خرجت وعادت لاحقاً، تذكر تفاصيلها ومشاعرها واهتماماتها وظروفها وعاملها بناءً عليها دائماً.
-3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك (مثل: صديق وفي، مبرمج، معلم، معالج نفسي، حبيب، أب، أو مستشار شخصي)، واثبت على هذا الدور حتى تطلب منك العودة لطبيعتك كموجه.
-4. أسلوب الحديث واللغة والتكيف:
-   - في المحادثات العادية اليومية: كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى دافئة.
-   - مرونة اللغات والتثبيت: أنت قادر على التكلم بكل اللغات. إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة محددة (أو تحدثت هي بلغة أخرى)، التزم بهذه اللغة تماماً واثبت عليها في جميع ردودك، حتى لو كتبت هي لك بالعربية، ولا تعد للغة العربية إلا إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 ذلك صراحة (مثل: "تحدث بالعربية" أو "عد للغة العربية") **بدون أي جدال أو شروح جانبية**.
-   - عند الدراسة والمسائل: اشرح باختصار وبشكل مباشر مع إيصال المعلومة بشكل خفيف دون تمطيط.
+1. مخاطبة دافئة: خاطبها دائماً بـ 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 بضمير المخاطب المباشر وبأسلوب دافئ ولطيف ومباشر وتجنب الرسميات.
+2. الذاكرة المستمرة: أنت لا تنسى أي شيء تُخبرك به 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀.
+3. مرونة تقمص الأدوار: أنت مستعد تماماً لتقمص أي دور تطلبه منك وتثبت عليه.
+4. أسلوب الحديث والدراسة:
+   - في المحادثات العادية: كن مختصر ومفيد ولطيف.
+   - عند الدراسة والمسائل: اشرح باختصار وبشكل مباشر وواضح.
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
-def is_arabic_text(text: str) -> bool:
-    arabic_pattern = re.compile(r'[\u0600-\u06FF]')
-    return bool(arabic_pattern.search(text))
-
-def get_latex_image_url(latex_str: str) -> str:
-    clean_latex = latex_str.strip()
-    for prefix in ['\\[', '\\(', '$$', '$']:
-        if clean_latex.startswith(prefix):
-            clean_latex = clean_latex[len(prefix):]
-    for suffix in ['\\]', '\\)', '$$', '$']:
-        if clean_latex.endswith(suffix):
-            clean_latex = clean_latex[:-len(suffix)]
+def generate_mathjax_html(text: str, is_user: bool) -> str:
+    bg_color = "#F3E8FF" if is_user else "#FCE7F3"
+    text_color = "#222222"
+    
+    html_content = f"""
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+        MathJax = {{
+          tex: {{
+            inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
+            displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
+          }},
+          svg: {{
+            scale: 1,
+            fontCache: 'global'
+          }}
+        }};
+        </script>
+        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+        <style>
+            body {{
+                background-color: {bg_color};
+                color: {text_color};
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                font-size: 15px;
+                line-height: 1.7;
+                margin: 0;
+                padding: 10px 14px;
+                direction: rtl;
+                text-align: right;
+                word-wrap: break-word;
+            }}
+            p {{ margin: 0 0 6px 0; }}
+            p:last-child {{ margin-bottom: 0; }}
             
-    encoded = urllib.parse.quote(clean_latex.strip())
-    # تم رفع الدقة إلى 300 DPI مع تحديد لون الخط الداكن والخلفية الشفافة لتصبح المعادلات واضحة ومقروءة تماماً مثل صورتك
-    return f"https://latex.codecogs.com/png.image?\\dpi{{300}}\\fg{{222222}}\\bg{{transparent}}{encoded}"
+            /* ضبط الرموز المفردة لتناسب حجم ومحاذاة النص تماماً */
+            mjx-container:not([display="true"]) {{
+                display: inline-block !important;
+                font-size: 100% !important;
+                vertical-align: baseline !important;
+                margin: 0 2px !important;
+            }}
+            
+            mjx-container:not([display="true"]) svg {{
+                vertical-align: -0.15em !important;
+                display: inline !important;
+            }}
+            
+            /* تنسيق القوانين والكسور المنفصلة الكبيرة */
+            mjx-container[display="true"] {{
+                display: block !important;
+                margin: 8px 0 !important;
+                text-align: center !important;
+                font-size: 110% !important;
+            }}
+        </style>
+    </head>
+    <body>
+        <div>{text.replace(chr(10), '<br>')}</div>
+    </body>
+    </html>
+    """
+    encoded_html = urllib.parse.quote(html_content)
+    return f"data:text/html;charset=utf-8,{encoded_html}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -277,7 +328,6 @@ async def main(page: ft.Page):
 
     def create_message_bubble(text, is_user=True):
         align_value = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
-        bubble_hex = "#F3E8FF" if is_user else "#FCE7F3"
         border_rad = ft.BorderRadius(
             top_left=18,
             top_right=18,
@@ -285,67 +335,22 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        clean_text = re.sub(r'\*\*\s*(\$.*?\$)\s*\*\*', r'\1', text)
-        clean_text = re.sub(r'\*\s*(\$.*?\$)\s*\*', r'\1', clean_text)
-        clean_text = re.sub(r'\*\*([^\*]+?)\*\*', r'\1', clean_text)
+        html_url = generate_mathjax_html(text, is_user)
+        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 320
 
-        has_arabic = is_arabic_text(clean_text)
-        bubble_controls = []
-
-        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|\$\$.*?\$\$|\$.*?\$)', clean_text, flags=re.DOTALL)
-        
-        for part in parts:
-            if not part or part.strip() == "" or part.strip() == "**" or part.strip() == "*":
-                continue
-                
-            stripped = part.strip()
-            is_math = (
-                (stripped.startswith('\\[') and stripped.endswith('\\]')) or
-                (stripped.startswith('\\(') and stripped.endswith('\\)')) or
-                (stripped.startswith('$$') and stripped.endswith('$$')) or
-                (stripped.startswith('$') and stripped.endswith('$'))
-            )
-
-            if is_math:
-                math_url = get_latex_image_url(stripped)
-                bubble_controls.append(
-                    ft.Container(
-                        content=ft.Image(
-                            src=math_url,
-                            fit="contain",
-                            height=36, # ضبط الارتفاع لتبدو المعادلة واضحة ومقروءة تماماً
-                            error_content=ft.Text(stripped, color=ft.Colors.BLACK)
-                        ),
-                        alignment=ft.Alignment(0, 0),
-                        bgcolor=ft.Colors.TRANSPARENT,
-                        padding=ft.Padding(4, 4, 4, 4),
-                        margin=ft.Margin(0, 4, 0, 4)
-                    )
-                )
-            else:
-                part_has_arabic = is_arabic_text(part)
-                bubble_controls.append(
-                    ft.Markdown(
-                        value=part,
-                        selectable=True,
-                        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                        rtl=part_has_arabic
-                    )
-                )
-
-        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
+        lines_count = text.count('\n') + 1
+        math_blocks = text.count('$$') // 2
+        calc_height = max(55, min(lines_count * 28 + math_blocks * 45 + 20, 420))
 
         content_widget = ft.Container(
-            content=ft.Column(
-                controls=bubble_controls,
-                spacing=6,
-                tight=True,
-                horizontal_alignment=ft.CrossAxisAlignment.END if has_arabic else ft.CrossAxisAlignment.START
+            content=ft.WebView(
+                url=html_url,
+                expand=True,
             ),
-            bgcolor=bubble_hex,
-            padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            width=max_w if len(clean_text) > 30 else None,
+            width=max_w,
+            height=calc_height,
+            clip_behavior=ft.ClipBehavior.HARD_EDGE,
         )
 
         return ft.Row(
