@@ -59,7 +59,7 @@ SYSTEM_PROMPT = """
 4. أسلوب الحديث واللغة والتكيف:
    - في المحادثات العادية واليومية: كن مختصر ومفيد ولطيف ومحتوي، وتكلم بلغة عربية فصحى دافئة.
    - مرونة اللغات والتثبيت: أنت قادر على التكلم بكل اللغات. إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 التحدث بلغة محددة (أو تحدثت هي بلغة أخرى)، التزم بهذه اللغة تماماً واثبت عليها في جميع ردودك، حتى لو كتبت هي لك بالعربية، ولا تعد للغة العربية إلا إذا طلبت منك 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 ذلك صراحة (مثل: "تحدث بالعربية" أو "عد للغة العربية") **بدون أي جدال أو شروح جانبية**.
-   - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وتبسيط وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة ومحددة دون إطالة زائدة أو حشو كلام غير ضروري.
+   - عند الدراسة والمسائل والأمور الجدية والمهمة: اشرح بوضوح وباختصار وسلاسة، وكن متوازناً ومباشراً في إجابتك، وقسّم الشرح إلى خطوات واضحة دون إطالة زائدة أو حشو كلام غير ضروري، لا تشرح كثيراً إلّا إذا طلبت المستخدمة شرح مبسط.
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
@@ -68,7 +68,7 @@ def is_arabic_text(text: str) -> bool:
     return bool(arabic_pattern.search(text))
 
 def get_latex_image_url(latex_str: str) -> str:
-    """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة دون تقطيع"""
+    """تحويل معادلة LaTeX إلى رابط صورة بخلفية شفافة تماماً وبحجم متناسق"""
     clean_latex = latex_str.strip()
     for prefix in ['\\[', '\\(', '$$', '$']:
         if clean_latex.startswith(prefix):
@@ -78,7 +78,8 @@ def get_latex_image_url(latex_str: str) -> str:
             clean_latex = clean_latex[:-len(suffix)]
             
     encoded = urllib.parse.quote(clean_latex.strip())
-    return f"https://latex.codecogs.com/png.image?\\dpi{{160}}\\bg{{white}}{encoded}"
+    # استخدام bg{transparent} لخلفية شفافة تماماً تندمج مع لون الفقاعة
+    return f"https://latex.codecogs.com/png.image?\\dpi{{100}}\\bg{{transparent}}{encoded}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -278,10 +279,14 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        has_arabic = is_arabic_text(text)
+        # تنظيف النجوم المحيطة بالمعادلات لمنع الفوضى البصرية
+        clean_text = re.sub(r'\*\*\s*(\$.*?\$)\s*\*\*', r'\1', text)
+        clean_text = re.sub(r'\*\s*(\$.*?\$)\s*\*', r'\1', clean_text)
+
+        has_arabic = is_arabic_text(clean_text)
         bubble_controls = []
 
-        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
+        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|\$\$.*?\$\$|\$.*?\$)', clean_text, flags=re.DOTALL)
         
         for part in parts:
             if not part or part.strip() == "":
@@ -302,25 +307,22 @@ async def main(page: ft.Page):
                         content=ft.Image(
                             src=math_url,
                             fit="contain",
+                            height=22,
                             error_content=ft.Text(stripped, color=ft.Colors.BLACK)
                         ),
                         alignment=ft.Alignment(0, 0),
-                        padding=ft.Padding(0, 6, 0, 6)
+                        padding=ft.Padding(0, 2, 0, 2)
                     )
                 )
             else:
+                # تطبيق الاتجاه الصحيح (RTL) حصرياً على أجزاء النص العادي التي تحتوي على العربية
+                part_has_arabic = is_arabic_text(part)
                 bubble_controls.append(
                     ft.Markdown(
                         value=part,
                         selectable=True,
                         extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                        md_style_sheet=ft.MarkdownStyleSheet(
-                            p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
-                            h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                            h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                            h3_text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                            strong_text_style=ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                        )
+                        rtl=part_has_arabic
                     )
                 )
 
@@ -336,7 +338,7 @@ async def main(page: ft.Page):
             bgcolor=bubble_hex,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-            width=max_w if len(text) > 30 else None,
+            width=max_w if len(clean_text) > 30 else None,
         )
 
         return ft.Row(
