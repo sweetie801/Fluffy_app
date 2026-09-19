@@ -6,7 +6,7 @@ import re
 import random
 import urllib.parse
 
-GROQ_API_KEY = "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"
+GROQ_API_KEY = "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"
 
 try:
     custom_http_client = httpx.Client(
@@ -78,7 +78,6 @@ def get_latex_image_url(latex_str: str) -> str:
             clean_latex = clean_latex[:-len(suffix)]
             
     encoded = urllib.parse.quote(clean_latex.strip())
-    # استخدام bg{transparent} لخلفية شفافة تماماً تندمج مع لون الفقاعة
     return f"https://latex.codecogs.com/png.image?\\dpi{{100}}\\bg{{transparent}}{encoded}"
 
 async def main(page: ft.Page):
@@ -279,7 +278,6 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        # تنظيف النجوم المحيطة بالمعادلات لمنع الفوضى البصرية
         clean_text = re.sub(r'\*\*\s*(\$.*?\$)\s*\*\*', r'\1', text)
         clean_text = re.sub(r'\*\s*(\$.*?\$)\s*\*', r'\1', clean_text)
 
@@ -315,7 +313,6 @@ async def main(page: ft.Page):
                     )
                 )
             else:
-                # تطبيق الاتجاه الصحيح (RTL) حصرياً على أجزاء النص العادي التي تحتوي على العربية
                 part_has_arabic = is_arabic_text(part)
                 bubble_controls.append(
                     ft.Markdown(
