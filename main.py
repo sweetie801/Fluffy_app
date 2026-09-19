@@ -51,8 +51,10 @@ SYSTEM_PROMPT = """
 1. أنت مذكر دائماً في كلامك عن نفسك (تستخدم: سعيدٌ، جاهزٌ، مخلصٌ، فكرتُ، أردتُ، مشتاقٌ)، وممنوع نهائياً أن تتكلم عن نفسك بصيغة المؤنث.
 2. تخاطب 𝑆𝑤𝑒𝑒𝑡𝑖𝑒 🎀 دائماً بصيغة المؤنث المباشر (أنتِ، لكِ، تحتاجين، سعيدة، مبدعة).
 
-[قواعد كتابة الرياضيات والفيزياء (مهم جداً)]
-- اكتب جميع الرموز والقوانين والكسور حصراً بصيغة LaTeX داخل رموز الرياضيات مثل $...$ للرموز داخل السطر (مثال: $\\pi$ أو $P$ أو $F$) و $$...$$ للقوانين والكسور الكبيرة ليقوم محرك MathJax برسمها بجمالية فائقة داخل السطر بدون تقطيع.
+[قواعد كتابة الرياضيات والفيزياء]
+- اكتب جميع القوانين والكسور والرموز والمعادلات الرياضية بصيغة LaTeX القياسية داخل رموز الرياضيات:
+  * استخدم $...$ للرموز والمعادلات المدمجة القصيرة (مثال: $P$ أو $\\pi$ أو $F$).
+  * استخدم $$...$$ للقوانين والكسور والمسائل الكبيرة (مثال: $$P = \\frac{F}{A}$$ أو $$A = \\pi r^2$$).
 
 [أسلوب التفكير والتحليل]
 - تجنب الهلوسة واختراع معلومات غير صحيحة مطلقاً.
@@ -69,74 +71,65 @@ SYSTEM_PROMPT = """
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
-def generate_mathjax_html(text: str, is_user: bool) -> str:
-    bg_color = "#F3E8FF" if is_user else "#FCE7F3"
-    text_color = "#222222"
-    
-    html_content = f"""
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <script>
-        MathJax = {{
-          tex: {{
-            inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-            displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']]
-          }},
-          svg: {{
-            scale: 1,
-            fontCache: 'global'
-          }}
-        }};
-        </script>
-        <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
-        <style>
-            body {{
-                background-color: {bg_color};
-                color: {text_color};
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                font-size: 15px;
-                line-height: 1.7;
-                margin: 0;
-                padding: 10px 14px;
-                direction: rtl;
-                text-align: right;
-                word-wrap: break-word;
-            }}
-            p {{ margin: 0 0 6px 0; }}
-            p:last-child {{ margin-bottom: 0; }}
-            
-            /* ضبط الرموز المفردة لتناسب حجم ومحاذاة النص تماماً */
-            mjx-container:not([display="true"]) {{
-                display: inline-block !important;
-                font-size: 100% !important;
-                vertical-align: baseline !important;
-                margin: 0 2px !important;
-            }}
-            
-            mjx-container:not([display="true"]) svg {{
-                vertical-align: -0.15em !important;
-                display: inline !important;
-            }}
-            
-            /* تنسيق القوانين والكسور المنفصلة الكبيرة */
-            mjx-container[display="true"] {{
-                display: block !important;
-                margin: 8px 0 !important;
-                text-align: center !important;
-                font-size: 110% !important;
-            }}
-        </style>
-    </head>
-    <body>
-        <div>{text.replace(chr(10), '<br>')}</div>
-    </body>
-    </html>
+def build_rendered_message_controls(text: str):
     """
-    encoded_html = urllib.parse.quote(html_content)
-    return f"data:text/html;charset=utf-8,{encoded_html}"
+    تقسيم النص إلى فقرات ومعادلات، وتحويل أي معادلة LaTeX إلى صورة PNG متناسقة
+    تُعرض بواسطة عنصر ft.Image الأصيل في Flet بدون حاجة لـ WebView
+    """
+    controls = []
+    
+    # فصل النص بناء على $$...$$ و $...$
+    pattern = r'(\$\$.*?\$\$|\$.*?\$)'
+    parts = re.split(pattern, text, flags=re.DOTALL)
+    
+    for part in parts:
+        if not part:
+            continue
+            
+        # معادلة منفصلة كبيرة $$...$$
+        if part.startswith('$$') and part.endswith('$$'):
+            latex_code = part[2:-2].strip()
+            if latex_code:
+                encoded_code = urllib.parse.quote(latex_code)
+                img_url = f"https://latex.codecogs.com/png.latex?\\dpi{{170}} {encoded_code}"
+                controls.append(
+                    ft.Container(
+                        content=ft.Image(
+                            src=img_url,
+                            fit=ft.ImageFit.CONTAIN,
+                        ),
+                        alignment=ft.Alignment(0, 0),
+                        padding=ft.Padding(0, 6, 0, 6)
+                    )
+                )
+        # معادلة أو رمز داخل السطر $...$
+        elif part.startswith('$') and part.endswith('$'):
+            latex_code = part[1:-1].strip()
+            if latex_code:
+                encoded_code = urllib.parse.quote(latex_code)
+                img_url = f"https://latex.codecogs.com/png.latex?\\dpi{{130}} {encoded_code}"
+                controls.append(
+                    ft.Container(
+                        content=ft.Image(
+                            src=img_url,
+                            fit=ft.ImageFit.CONTAIN,
+                        ),
+                        padding=ft.Padding(2, 0, 2, 0)
+                    )
+                )
+        else:
+            # نص عادي
+            controls.append(
+                ft.Text(
+                    part,
+                    size=15,
+                    color=ft.Colors.BLACK87,
+                    rtl=True,
+                    selectable=True
+                )
+            )
+            
+    return ft.Column(controls=controls, spacing=4)
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -328,6 +321,7 @@ async def main(page: ft.Page):
 
     def create_message_bubble(text, is_user=True):
         align_value = ft.MainAxisAlignment.END if is_user else ft.MainAxisAlignment.START
+        bg_color = "#F3E8FF" if is_user else "#FCE7F3"
         border_rad = ft.BorderRadius(
             top_left=18,
             top_right=18,
@@ -335,22 +329,16 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        html_url = generate_mathjax_html(text, is_user)
         max_w = (page.width * 0.85) if (page.width and page.width > 0) else 320
 
-        lines_count = text.count('\n') + 1
-        math_blocks = text.count('$$') // 2
-        calc_height = max(55, min(lines_count * 28 + math_blocks * 45 + 20, 420))
+        message_content = build_rendered_message_controls(text)
 
         content_widget = ft.Container(
-            content=ft.WebView(
-                url=html_url,
-                expand=True,
-            ),
+            content=message_content,
+            bgcolor=bg_color,
             border_radius=border_rad,
-            width=max_w,
-            height=calc_height,
-            clip_behavior=ft.ClipBehavior.HARD_EDGE,
+            padding=ft.Padding(14, 10, 14, 10),
+            max_width=max_w,
         )
 
         return ft.Row(
