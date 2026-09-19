@@ -2,8 +2,9 @@ import flet as ft
 from groq import Groq
 import httpx
 import asyncio
-import random
 import re
+import random
+import urllib.parse
 
 GROQ_API_KEY = "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"
 
@@ -62,33 +63,22 @@ SYSTEM_PROMPT = """
    - استخدم الإيموجيات اللطيفة والدافئة دائماً ✨🌸🎀.
 """
 
-def clean_math_text(text: str) -> str:
-    text = text.replace(r'\frac', '')
-    text = text.replace(r'\int', '∫')
-    text = text.replace(r'\sum', '∑')
-    text = text.replace(r'\alpha', 'α')
-    text = text.replace(r'\beta', 'β')
-    text = text.replace(r'\omega', 'ω')
-    text = text.replace(r'\Omega', 'Ω')
-    text = text.replace(r'\phi', 'φ')
-    text = text.replace(r'\Phi', 'Φ')
-    text = text.replace(r'\rho', 'ρ')
-    text = text.replace(r'\theta', 'θ')
-    text = text.replace(r'\pi', 'π')
-    
-    text = re.sub(r'\\\[(.*?)\\\]', r'\1', text, flags=re.DOTALL)
-    text = re.sub(r'\\\((.*?)\\\)', r'\1', text, flags=re.DOTALL)
-    text = re.sub(r'\$\$', '', text)
-    text = re.sub(r'\$', '', text)
-    
-    text = text.replace('d^2', 'd²').replace('dt^2', 'dt²')
-    text = text.replace('0^2', '₀²').replace('0', '₀')
-    
-    return text
-
 def is_arabic_text(text: str) -> bool:
     arabic_pattern = re.compile(r'[\u0600-\u06FF]')
     return bool(arabic_pattern.search(text))
+
+def get_latex_image_url(latex_str: str) -> str:
+    """تحويل معادلة LaTeX إلى رابط صورة شفاف وعالي الجودة دون تقطيع"""
+    clean_latex = latex_str.strip()
+    for prefix in ['\\[', '\\(', '$$', '$']:
+        if clean_latex.startswith(prefix):
+            clean_latex = clean_latex[len(prefix):]
+    for suffix in ['\\]', '\\)', '$$', '$']:
+        if clean_latex.endswith(suffix):
+            clean_latex = clean_latex[:-len(suffix)]
+            
+    encoded = urllib.parse.quote(clean_latex.strip())
+    return f"https://latex.codecogs.com/png.image?\\dpi{{160}}\\bg{{white}}{encoded}"
 
 async def main(page: ft.Page):
     page.title = "Fluffy AI 🐾"
@@ -288,34 +278,69 @@ async def main(page: ft.Page):
             bottom_right=4 if is_user else 18
         )
 
-        processed_text = clean_math_text(text) if not is_user else text
+        has_arabic = is_arabic_text(text)
+        bubble_controls = []
+
+        parts = re.split(r'(\\\[.*?\\\]|\\\([^\)]*?\\\)|\$\$.*?\$\$|\$.*?\$)', text, flags=re.DOTALL)
+        
+        for part in parts:
+            if not part or part.strip() == "":
+                continue
+                
+            stripped = part.strip()
+            is_math = (
+                (stripped.startswith('\\[') and stripped.endswith('\\]')) or
+                (stripped.startswith('\\(') and stripped.endswith('\\)')) or
+                (stripped.startswith('$$') and stripped.endswith('$$')) or
+                (stripped.startswith('$') and stripped.endswith('$'))
+            )
+
+            if is_math:
+                math_url = get_latex_image_url(stripped)
+                bubble_controls.append(
+                    ft.Container(
+                        content=ft.Image(
+                            src=math_url,
+                            fit="contain",
+                            error_content=ft.Text(stripped, color=ft.Colors.BLACK)
+                        ),
+                        alignment=ft.Alignment(0, 0),
+                        padding=ft.Padding(0, 6, 0, 6)
+                    )
+                )
+            else:
+                bubble_controls.append(
+                    ft.Markdown(
+                        value=part,
+                        selectable=True,
+                        extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
+                        style_sheet=ft.MarkdownStyleSheet(
+                            p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
+                            h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                            h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                            h3_text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                            strong_text_style=ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
+                        )
+                    )
+                )
+
+        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
 
         content_widget = ft.Container(
-            content=ft.Markdown(
-                value=processed_text,
-                selectable=True,
-                extension_set=ft.MarkdownExtensionSet.GITHUB_WEB,
-                md_style_sheet=ft.MarkdownStyleSheet(
-                    p_text_style=ft.TextStyle(size=14, color=ft.Colors.BLACK),
-                    h1_text_style=ft.TextStyle(size=18, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                    h2_text_style=ft.TextStyle(size=16, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                    h3_text_style=ft.TextStyle(size=15, weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                    strong_text_style=ft.TextStyle(weight=ft.FontWeight.BOLD, color=ft.Colors.BLACK),
-                )
+            content=ft.Column(
+                controls=bubble_controls,
+                spacing=4,
+                tight=True,
+                horizontal_alignment=ft.CrossAxisAlignment.END if has_arabic else ft.CrossAxisAlignment.START
             ),
             bgcolor=bubble_hex,
             padding=ft.Padding(14, 10, 14, 10),
             border_radius=border_rad,
-        )
-
-        max_w = (page.width * 0.85) if (page.width and page.width > 0) else 300
-        constrained_bubble = ft.Container(
-            content=content_widget,
-            constraints=ft.BoxConstraints(max_width=max_w)
+            width=max_w if len(text) > 30 else None,
         )
 
         return ft.Row(
-            controls=[constrained_bubble],
+            controls=[content_widget],
             alignment=align_value
         )
 
